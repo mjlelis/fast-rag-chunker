@@ -1,0 +1,25 @@
+/target
+/dist
+/build
+*.so
+*.dylib
+*.dll
+*.a
+*.o
+*.obj
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
