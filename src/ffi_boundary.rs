@@ -29,7 +29,12 @@ pub unsafe extern "C" fn rust_chunk_buffer(
 ) -> i32 {
     let result = catch_unwind(|| {
         // 1. Defesa contra ponteiros nulos e argumentos inválidos
-        if buf.is_null() || out_boundaries.is_null() || min_chunk == 0 || max_chunk < min_chunk || max_chunks == 0 {
+        if buf.is_null()
+            || out_boundaries.is_null()
+            || min_chunk == 0
+            || max_chunk < min_chunk
+            || max_chunks == 0
+        {
             return -1;
         }
 
@@ -84,7 +89,15 @@ mod tests {
     #[test]
     fn test_null_pointer_handling() {
         unsafe {
-            let res = rust_chunk_buffer(std::ptr::null(), 10, 4, 16, 0x07, std::ptr::null_mut(), 10);
+            let res = rust_chunk_buffer(
+                std::ptr::null(),
+                10,
+                4,
+                16,
+                0x07,
+                std::ptr::null_mut(),
+                10,
+            );
             assert_eq!(res, -1);
         }
     }
@@ -92,18 +105,94 @@ mod tests {
     #[test]
     fn test_strangler_fig_c_vs_rust_parity() {
         let sample = b"Comparacao direta de baseline C versus implementacao Rust Strangler Fig!";
-        let mut c_out = [ChunkBoundary { offset: 0, length: 0, hash: 0 }; 16];
-        let mut rust_out = [ChunkBoundary { offset: 0, length: 0, hash: 0 }; 16];
+        let mut c_out = [ChunkBoundary {
+            offset: 0,
+            length: 0,
+            hash: 0,
+        }; 16];
+        let mut rust_out = [ChunkBoundary {
+            offset: 0,
+            length: 0,
+            hash: 0,
+        }; 16];
 
         let c_count = unsafe {
-            chunk_buffer(sample.as_ptr(), sample.len(), 8, 32, 0x03, c_out.as_mut_ptr(), 16)
+            chunk_buffer(
+                sample.as_ptr(),
+                sample.len(),
+                64,
+                1024,
+                0x03,
+                c_out.as_mut_ptr(),
+                16,
+            )
         };
 
         let rust_count = unsafe {
-            rust_chunk_buffer(sample.as_ptr(), sample.len(), 8, 32, 0x03, rust_out.as_mut_ptr(), 16)
+            rust_chunk_buffer(
+                sample.as_ptr(),
+                sample.len(),
+                64,
+                1024,
+                0x03,
+                rust_out.as_mut_ptr(),
+                16,
+            )
         };
 
         assert!(c_count > 0);
+        assert_eq!(c_count, rust_count);
+
+        for i in 0..(c_count as usize) {
+            assert_eq!(c_out[i].offset, rust_out[i].offset);
+            assert_eq!(c_out[i].length, rust_out[i].length);
+            assert_eq!(c_out[i].hash, rust_out[i].hash);
+        }
+    }
+
+    #[test]
+    fn test_strangler_fig_c_vs_rust_multi_chunk_parity() {
+        let mut sample = Vec::with_capacity(8192);
+        for i in 0..8192u32 {
+            sample.push(((i.wrapping_mul(1103515245).wrapping_add(12345)) >> 16) as u8);
+        }
+
+        let mut c_out = [ChunkBoundary {
+            offset: 0,
+            length: 0,
+            hash: 0,
+        }; 64];
+        let mut rust_out = [ChunkBoundary {
+            offset: 0,
+            length: 0,
+            hash: 0,
+        }; 64];
+
+        let c_count = unsafe {
+            chunk_buffer(
+                sample.as_ptr(),
+                sample.len(),
+                64,
+                1024,
+                0x1F,
+                c_out.as_mut_ptr(),
+                64,
+            )
+        };
+
+        let rust_count = unsafe {
+            rust_chunk_buffer(
+                sample.as_ptr(),
+                sample.len(),
+                64,
+                1024,
+                0x1F,
+                rust_out.as_mut_ptr(),
+                64,
+            )
+        };
+
+        assert!(c_count > 1);
         assert_eq!(c_count, rust_count);
 
         for i in 0..(c_count as usize) {

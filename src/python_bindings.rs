@@ -6,7 +6,7 @@ use pyo3::types::PyBytes;
 use rayon::prelude::*;
 
 #[cfg(feature = "python")]
-use crate::safe_core::chunk_slice;
+use crate::safe_core::{chunk_slice, chunk_slice_semantic};
 
 #[cfg(feature = "python")]
 #[pyclass]
@@ -20,26 +20,35 @@ pub struct PyChunkResult {
     pub hash: u64,
 }
 
-/// Processa lotes de documentos em paralelo liberando o GIL do Python via Rayon
+/// Processes document batches in parallel across all CPU cores, releasing Python's GIL via Rayon.
+/// When `semantic_snap=True` (default), snaps cut points to UTF-8 and natural language boundaries
+/// and populates each chunk's 64-bit FNV-1a content hash for embedding cache lookup.
 #[cfg(feature = "python")]
 #[pyfunction]
-#[pyo3(signature = (documents, min_chunk=64, max_chunk=512, mask=0x1F))]
+#[pyo3(signature = (documents, min_chunk=64, max_chunk=512, mask=0x1F, semantic_snap=true))]
 pub fn chunk_documents_batch(
     py: Python<'_>,
     documents: Vec<Bound<'_, PyBytes>>,
     min_chunk: usize,
     max_chunk: usize,
     mask: u32,
+    semantic_snap: bool,
 ) -> PyResult<Vec<Vec<PyChunkResult>>> {
-    // 1. Extração de referências para fatias contíguas de memória (&[u8]) sem cópia
+    // 1. Zero-copy extraction of contiguous byte slice references (&[u8])
     let doc_slices: Vec<&[u8]> = documents.iter().map(|b| b.as_bytes()).collect();
 
-    // 2. Liberação explícita do Global Interpreter Lock (GIL) para execução em paralelo multicore
+    // 2. Explicit release of the Global Interpreter Lock (GIL) for multi-core Rayon execution
     let results = py.allow_threads(|| {
         doc_slices
             .into_par_iter()
             .map(|slice| {
-                chunk_slice(slice, min_chunk, max_chunk, mask)
+                let chunks = if semantic_snap {
+                    chunk_slice_semantic(slice, min_chunk, max_chunk)
+                } else {
+                    chunk_slice(slice, min_chunk, max_chunk, mask)
+                };
+
+                chunks
                     .unwrap_or_default()
                     .into_iter()
                     .map(|c| PyChunkResult {
