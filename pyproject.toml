@@ -4,12 +4,13 @@ build-backend = "maturin"
 
 [project]
 name = "fast-rag-chunker"
-version = "0.1.0"
+version = "0.1.1"
 description = "Zero-copy PyO3 content-defined semantic & rolling-hash chunker"
 readme = "README.md"
+license = { text = "MIT OR Apache-2.0" }
 requires-python = ">=3.9"
 dependencies = []
 
 [tool.maturin]
-features = ["pyo3/extension-module", "python"]
+features = ["extension-module"]
 module-name = "fast_rag_chunker"

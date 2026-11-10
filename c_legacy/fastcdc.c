@@ -1,3 +1,9 @@
+/*
+ * Derived from https://github.com/sleepybishop/fastcdc
+ * Copyright (c) 2020 Joseph Calderon (MIT License)
+ * Modified in v0.1.1 to inspect the callback return value in fastcdc_update.
+ */
+
 #include "fastcdc.h"
 #include <math.h>
 
@@ -109,8 +115,11 @@ size_t fastcdc_update(fcdc_ctx *ctx, uint8_t *data, size_t len, int end,
   while (((len - offset) >= ctx->ma) || (end && (offset < len))) {
     uint32_t cp = cut(data + offset, len - offset, ctx->mi, ctx->ma, ctx->ns,
                       ctx->mask_s, ctx->mask_l);
-    cb(arg, ctx->pos + offset, cp);
+    int rc = cb(arg, ctx->pos + offset, cp);
     offset += cp;
+    if (rc != 0) {
+      break;
+    }
   }
   ctx->pos += offset;
   return offset;

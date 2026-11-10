@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality-gates:
+    name: Quality Gates (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check formatting (rustfmt)
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy (without python feature)
+        run: cargo clippy --locked --no-default-features --all-targets -- -D warnings
+
+      - name: Run Clippy (all features)
+        env:
+          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Build locked crate
+        env:
+          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
+        run: cargo build --locked
+
+      - name: Run Rust unit & FFI parity tests (without python feature)
+        run: cargo test --locked --no-default-features
+
+      - name: Run Rust unit & FFI parity tests (with python feature)
+        env:
+          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
+        run: cargo test --locked
+
+      - name: Build wheel with Maturin and run Pytest suite
+        run: |
+          python -m pip install --upgrade pip maturin pytest
+          maturin build --locked --release --out dist
+          python -m pip install --force-reinstall dist/*.whl
+          pytest -v tests/
+          python scripts/benchmark.py
+
+  miri:
+    name: Miri Undefined Behavior Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust nightly with Miri
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+
+      - name: Run Miri on safe_core tests
+        run: cargo +nightly miri test --locked --no-default-features -- safe_core
+
+  valgrind:
+    name: Valgrind C Memory Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Valgrind and Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang valgrind
+
+      - name: Compile and run C legacy harness under Valgrind
+        run: |
+          clang -O2 -g -Wall -Wextra c_legacy/fastcdc.c c_legacy/chunker.c c_legacy/main_test.c -lm -o c_legacy/main_test
+          valgrind --error-exitcode=1 --leak-check=full ./c_legacy/main_test

@@ -1,9 +1,11 @@
 [package]
 name = "fast-rag-chunker"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["mjlelis <mjlelis@users.noreply.github.com>"]
 description = "Hybrid C/Rust/Python fast content-defined chunking (FastCDC) engine for RAG pipelines"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mjlelis/fast-rag-chunker"
 
 [lib]
 name = "fast_rag_chunker"
@@ -12,14 +14,12 @@ crate-type = ["cdylib", "staticlib", "rlib"]
 [features]
 default = ["python"]
 python = ["dep:pyo3"]
+extension-module = ["python", "pyo3/extension-module"]
 
 [dependencies]
-pyo3 = { version = "0.22", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.22", optional = true }
 rayon = "1.10"
 thiserror = "1.0"
 
 [build-dependencies]
 cc = "1.0"
-
-[dev-dependencies]
-criterion = "0.5"

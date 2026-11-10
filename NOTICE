@@ -1,0 +1,30 @@
+fast-rag-chunker
+Copyright (c) 2026 mjlelis
+Licensed under either of Apache License, Version 2.0 or MIT license at your option.
+
+-------------------------------------------------------------------------------
+Third-Party Notices and Attribution
+-------------------------------------------------------------------------------
+
+1. c_legacy/fastcdc.c and c_legacy/fastcdc.h (and the 256-entry GEAR constant
+   array ported to src/safe_core.rs and scripts/benchmark.py) are derived from:
+
+   Repository: https://github.com/sleepybishop/fastcdc
+   Copyright (c) 2020 Joseph Calderon
+   License: MIT License
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+2. Algorithm Reference:
+   Wen Xia, Yukun Zhou, Hong Jiang, Dan Feng, Yu Hua, Yuchong Hu, Qing Liu,
+   and Yucheng Zhang. "FastCDC: a Fast and Efficient Content-Defined Chunking
+   Approach for Data Deduplication." In Proceedings of the 2016 USENIX Annual
+   Technical Conference (USENIX ATC '16), pages 101-114, 2016.

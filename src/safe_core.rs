@@ -1,14 +1,30 @@
 #![forbid(unsafe_code)]
 
-//! # Safe Core: FastCDC (Fast Content-Defined Chunking) & Semantic Boundary Snapping
+//! # Safe Core: FastCDC & UTF-8 Semantic Boundary Snapping
 //!
-//! Idiomatic, 100% memory-safe implementation of the FastCDC algorithm (USENIX ATC'16, Wen Xia et al.)
-//! with a 256-entry GEAR table, window size normalization, dual-mask rolling hash, and
-//! NLP/UTF-8 Semantic Boundary Snapping for Retrieval-Augmented Generation (RAG) pipelines.
+//! Memory-safe implementation of the FastCDC algorithm (Wen Xia et al., USENIX ATC '16)
+//! featuring window size normalization, dual-mask rolling Gear hash, and NLP/UTF-8
+//! Semantic Boundary Snapping for Retrieval-Augmented Generation (RAG) pipelines.
 //!
-//! Contains zero unsafe code (`#![forbid(unsafe_code)]`) and no `libc` dependencies.
+//! Enforces `#![forbid(unsafe_code)]` with zero `libc` dependencies.
 
 use thiserror::Error;
+
+/// Maximum supported `max_chunk` parameter (1 GiB), matching the upper bound of the
+/// reference FastCDC implementation and preventing 32-bit / `usize` arithmetic overflow.
+pub const MAX_CHUNK_SIZE_LIMIT: usize = 1 << 30;
+
+// FastCDC clamping constants matching c_legacy/fastcdc.c (used in chunk_slice_compat)
+const AVERAGE_MIN: u32 = 1 << 8; // 256
+const AVERAGE_MAX: u32 = 1 << 28; // 268,435,456
+const MINIMUM_MIN: u32 = AVERAGE_MIN >> 2; // 64
+const MINIMUM_MAX: u32 = AVERAGE_MAX >> 2;
+const MAXIMUM_MIN: u32 = AVERAGE_MIN << 2; // 1,024
+const MAXIMUM_MAX: u32 = AVERAGE_MAX << 2;
+
+// FNV-1a 64-bit constants for deterministic chunk fingerprinting
+const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
+const FNV_PRIME: u64 = 0x0000_0100_0000_01B3;
 
 #[derive(Error, Debug, PartialEq, Eq)]
 pub enum ChunkerError {
@@ -16,6 +32,8 @@ pub enum ChunkerError {
     ZeroMinChunk,
     #[error("max_chunk ({max}) must be greater than or equal to min_chunk ({min})")]
     InvalidChunkSize { min: usize, max: usize },
+    #[error("chunk size ({size}) exceeds maximum supported limit ({max_allowed})")]
+    ChunkSizeTooLarge { size: usize, max_allowed: usize },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,19 +43,9 @@ pub struct Chunk {
     pub hash: u64,
 }
 
-// FastCDC clamping constants matching c_legacy/fastcdc.c
-const AVERAGE_MIN: u32 = 1 << 8; // 256
-const AVERAGE_MAX: u32 = 1 << 28; // 268,435,456
-const MINIMUM_MIN: u32 = AVERAGE_MIN >> 2; // 64
-const MINIMUM_MAX: u32 = AVERAGE_MAX >> 2;
-const MAXIMUM_MIN: u32 = AVERAGE_MIN << 2; // 1024
-const MAXIMUM_MAX: u32 = AVERAGE_MAX << 2;
-
-// FNV-1a 64-bit constants for deterministic chunk fingerprinting
-const FNV_OFFSET_BASIS: u64 = 0xcbf29ce484222325;
-const FNV_PRIME: u64 = 0x00000100000001B3;
-
-// Standard 256-entry GEAR table from the USENIX ATC'16 FastCDC specification
+// 256-entry pseudo-random Gear lookup table derived from the sleepybishop/fastcdc
+// C reference implementation (Copyright (c) 2020 Joseph Calderon, MIT License).
+#[rustfmt::skip]
 const GEAR: [u32; 256] = [
     0x5C95C078, 0x22408989, 0x2D48A214, 0x12842087, 0x530F8AFB, 0x474536B9,
     0x2963B4F1, 0x44CB738B, 0x4EA7403D, 0x4D606B6E, 0x074EC5D3, 0x3AF39D18,
@@ -84,6 +92,40 @@ const GEAR: [u32; 256] = [
     0x56A368C7, 0x234325E4, 0x2DCE9187, 0x32E8EA7E,
 ];
 
+/// Validates `min_chunk` and `max_chunk` without arithmetic overflow or truncation,
+/// returning `(mi, avg, ma)` as `u32`.
+pub fn validate_chunk_params(
+    min_chunk: usize,
+    max_chunk: usize,
+) -> Result<(u32, u32, u32), ChunkerError> {
+    if min_chunk == 0 {
+        return Err(ChunkerError::ZeroMinChunk);
+    }
+    if max_chunk < min_chunk {
+        return Err(ChunkerError::InvalidChunkSize {
+            min: min_chunk,
+            max: max_chunk,
+        });
+    }
+    if min_chunk > MAX_CHUNK_SIZE_LIMIT {
+        return Err(ChunkerError::ChunkSizeTooLarge {
+            size: min_chunk,
+            max_allowed: MAX_CHUNK_SIZE_LIMIT,
+        });
+    }
+    if max_chunk > MAX_CHUNK_SIZE_LIMIT {
+        return Err(ChunkerError::ChunkSizeTooLarge {
+            size: max_chunk,
+            max_allowed: MAX_CHUNK_SIZE_LIMIT,
+        });
+    }
+
+    let mi = min_chunk as u32;
+    let ma = max_chunk as u32;
+    let avg = mi + (ma - mi) / 2;
+    Ok((mi, avg, ma))
+}
+
 #[inline]
 fn clamp(x: u32, a: u32, b: u32) -> u32 {
     x.clamp(a, b)
@@ -96,16 +138,17 @@ fn mask(bits: u32) -> u32 {
 
 #[inline]
 fn normal_size(mi: u32, av: u32, len: u32) -> u32 {
-    let off = (mi + (mi + 1) / 2).min(av);
+    let off = mi.saturating_add(mi.div_ceil(2)).min(av);
     let sz = av - off;
     sz.min(len)
 }
 
+/// Computes a deterministic 64-bit FNV-1a hash over a byte slice.
 #[inline]
 pub fn fnv1a_64(data: &[u8]) -> u64 {
     let mut hash = FNV_OFFSET_BASIS;
     for &byte in data {
-        hash ^= byte as u64;
+        hash ^= u64::from(byte);
         hash = hash.wrapping_mul(FNV_PRIME);
     }
     hash
@@ -138,8 +181,8 @@ fn cut_fastcdc(src: &[u8], mi: usize, ma: usize, ns: usize, mask_s: u32, mask_l:
     i
 }
 
-/// Returns true if `byte` is the start of a new UTF-8 codepoint (ASCII or leading multi-byte).
-/// In UTF-8, continuation bytes always match the bit pattern `10xxxxxx` (`0x80..=0xBF`).
+/// Returns `true` if `byte` is the start of a UTF-8 codepoint (ASCII or multi-byte leading byte).
+/// In UTF-8, continuation bytes always have the bit pattern `10xxxxxx` (`0x80..=0xBF`).
 #[inline]
 fn is_utf8_char_boundary(byte: u8) -> bool {
     (byte & 0b1100_0000) != 0b1000_0000
@@ -150,86 +193,88 @@ fn is_utf8_char_boundary(byte: u8) -> bool {
 /// 2. Word whitespace (`' '`, `'\t'`)
 /// 3. Valid UTF-8 codepoint boundary (never splits multi-byte characters)
 #[inline]
-fn snap_to_semantic_boundary(src: &[u8], raw_cut: usize, min_chunk: usize, max_chunk: usize) -> usize {
+fn snap_to_semantic_boundary(
+    src: &[u8],
+    raw_cut: usize,
+    min_chunk: usize,
+    max_chunk: usize,
+) -> usize {
     let len = src.len();
     if raw_cut >= len {
         return len;
     }
 
     let limit = max_chunk.min(len);
-    // Lookahead window of up to 64 bytes (bounded by max_chunk and buffer length)
     let lookahead_end = (raw_cut + 64).min(limit);
 
     // 1. Priority: Look ahead for newline or sentence end (. ! ?)
-    for idx in raw_cut..lookahead_end {
-        let b = src[idx];
+    for (offset, &b) in src[raw_cut..lookahead_end].iter().enumerate() {
+        let idx = raw_cut + offset;
         if b == b'\n' {
             return idx + 1;
         }
-        if (b == b'.' || b == b'!' || b == b'?') && idx + 1 < limit && src[idx + 1].is_ascii_whitespace() {
+        if (b == b'.' || b == b'!' || b == b'?')
+            && idx + 1 < limit
+            && src[idx + 1].is_ascii_whitespace()
+        {
             return idx + 2;
         }
     }
 
     // 2. Priority: Look ahead for standard whitespace
-    for idx in raw_cut..lookahead_end {
-        if src[idx].is_ascii_whitespace() {
-            return idx + 1;
-        }
+    if let Some(offset) = src[raw_cut..lookahead_end]
+        .iter()
+        .position(u8::is_ascii_whitespace)
+    {
+        return raw_cut + offset + 1;
     }
 
     // 3. Fallback: Look behind (down to min_chunk) for whitespace so we never split a word
     let lookbehind_start = min_chunk.min(raw_cut);
-    for idx in (lookbehind_start..raw_cut).rev() {
-        if src[idx].is_ascii_whitespace() {
-            return idx + 1;
-        }
+    if let Some(offset) = src[lookbehind_start..raw_cut]
+        .iter()
+        .rposition(u8::is_ascii_whitespace)
+    {
+        return lookbehind_start + offset + 1;
     }
 
     // 4. Final guarantee: Ensure we do not split a multi-byte UTF-8 sequence
-    let mut utf8_safe = raw_cut;
+    let mut utf8_safe = raw_cut.min(limit);
     while utf8_safe < limit && !is_utf8_char_boundary(src[utf8_safe]) {
         utf8_safe += 1;
     }
     if utf8_safe < limit && is_utf8_char_boundary(src[utf8_safe]) {
         return utf8_safe;
     }
-    while utf8_safe > lookbehind_start && !is_utf8_char_boundary(src[utf8_safe]) {
-        utf8_safe -= 1;
+    let mut utf8_back = raw_cut.min(limit.saturating_sub(1));
+    while utf8_back > lookbehind_start && !is_utf8_char_boundary(src[utf8_back]) {
+        utf8_back -= 1;
     }
-    utf8_safe.max(1)
+    utf8_back.max(lookbehind_start).max(1)
 }
 
-/// Executes raw FastCDC over a contiguous byte slice with 100% C ABI parity (`c_legacy/fastcdc.c`).
-pub fn chunk_slice(
+/// Executes raw FastCDC with C-legacy parameter clamping (`min >= 64`, `avg >= 256`, `max >= 1024`)
+/// to maintain 100% binary compatibility with `c_legacy/fastcdc.c` across the FFI boundary.
+///
+/// Note: `_mask` is ignored (FastCDC computes its internal dual masks from the average size)
+/// and is retained only until v0.2.0.
+pub fn chunk_slice_compat(
     data: &[u8],
     min_chunk: usize,
     max_chunk: usize,
     _mask: u32,
 ) -> Result<Vec<Chunk>, ChunkerError> {
-    if min_chunk == 0 {
-        return Err(ChunkerError::ZeroMinChunk);
-    }
-    if max_chunk < min_chunk {
-        return Err(ChunkerError::InvalidChunkSize {
-            min: min_chunk,
-            max: max_chunk,
-        });
-    }
+    let (raw_mi, raw_avg_unclamped, raw_ma) = validate_chunk_params(min_chunk, max_chunk)?;
     if data.is_empty() {
         return Ok(Vec::new());
     }
 
-    let raw_mi = min_chunk as u32;
-    let raw_ma = max_chunk as u32;
-    let raw_avg = ((min_chunk + max_chunk) / 2).max(AVERAGE_MIN as usize) as u32;
-
-    // Clamping identical to fastcdc_init in c_legacy/fastcdc.c
+    let raw_avg = raw_avg_unclamped.max(AVERAGE_MIN);
     let mi = clamp(raw_mi, MINIMUM_MIN, MINIMUM_MAX) as usize;
     let av = clamp(raw_avg, AVERAGE_MIN, AVERAGE_MAX);
     let ma = clamp(raw_ma, MAXIMUM_MIN, MAXIMUM_MAX) as usize;
 
-    let bits = (av as f64).log2().round() as u32;
+    let bits = f64::from(av).log2().round() as u32;
     let ns = normal_size(raw_mi, raw_avg, raw_ma) as usize;
     let mask_s = mask(bits + 1);
     let mask_l = mask(bits.saturating_sub(1));
@@ -254,34 +299,70 @@ pub fn chunk_slice(
     Ok(chunks)
 }
 
+/// Executes raw FastCDC strictly respecting caller-supplied `min_chunk` and `max_chunk` bounds
+/// without applying legacy C clamps.
+///
+/// Guarantees:
+/// - Every chunk has `length <= max_chunk`.
+/// - Every non-final chunk (`offset + length < data.len()`) has `length >= min_chunk`.
+///
+/// Note: `_mask` is ignored (FastCDC computes its internal dual masks from the average size)
+/// and is scheduled for removal in v0.2.0.
+pub fn chunk_slice(
+    data: &[u8],
+    min_chunk: usize,
+    max_chunk: usize,
+    _mask: u32,
+) -> Result<Vec<Chunk>, ChunkerError> {
+    let (mi, avg, ma) = validate_chunk_params(min_chunk, max_chunk)?;
+    if data.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let bits = f64::from(avg.max(4)).log2().round().max(2.0) as u32;
+    let ns = normal_size(mi, avg, ma) as usize;
+    let mask_s = mask(bits + 1);
+    let mask_l = mask(bits.saturating_sub(1));
+
+    let mut chunks = Vec::new();
+    let mut offset = 0;
+
+    while offset < data.len() {
+        let remaining = &data[offset..];
+        let chunk_len = cut_fastcdc(remaining, min_chunk, max_chunk, ns, mask_s, mask_l);
+        let actual_len = chunk_len.max(1);
+
+        chunks.push(Chunk {
+            offset,
+            length: actual_len,
+            hash: 0,
+        });
+
+        offset += actual_len;
+    }
+
+    Ok(chunks)
+}
+
 /// Executes NLP/RAG-optimized FastCDC with Semantic Boundary Snapping and 64-bit FNV-1a hashing.
 ///
 /// Guarantees:
 /// - Never splits multi-byte UTF-8 codepoints.
 /// - Snaps chunk boundaries to sentence endings (`.`, `\n`) or word whitespace whenever possible.
+/// - Respects `min_chunk` and `max_chunk` bounds on all chunks.
 /// - Populates `Chunk.hash` with a deterministic 64-bit FNV-1a fingerprint for embedding cache lookup.
 pub fn chunk_slice_semantic(
     data: &[u8],
     min_chunk: usize,
     max_chunk: usize,
 ) -> Result<Vec<Chunk>, ChunkerError> {
-    if min_chunk == 0 {
-        return Err(ChunkerError::ZeroMinChunk);
-    }
-    if max_chunk < min_chunk {
-        return Err(ChunkerError::InvalidChunkSize {
-            min: min_chunk,
-            max: max_chunk,
-        });
-    }
+    let (mi, raw_avg, ma) = validate_chunk_params(min_chunk, max_chunk)?;
     if data.is_empty() {
         return Ok(Vec::new());
     }
 
-    let avg = ((min_chunk + max_chunk) / 2).max(64) as u32;
-    let mi = min_chunk as u32;
-    let ma = max_chunk as u32;
-    let bits = (avg as f64).log2().round().max(2.0) as u32;
+    let avg = raw_avg.max(64.min(ma));
+    let bits = f64::from(avg.max(4)).log2().round().max(2.0) as u32;
     let ns = normal_size(mi, avg, ma) as usize;
     let mask_s = mask(bits + 1);
     let mask_l = mask(bits.saturating_sub(1));
@@ -311,16 +392,25 @@ pub fn chunk_slice_semantic(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
     fn test_fastcdc_empty() {
         assert_eq!(chunk_slice(&[], 64, 512, 0), Ok(Vec::new()));
+        assert_eq!(chunk_slice_compat(&[], 64, 512, 0), Ok(Vec::new()));
         assert_eq!(chunk_slice_semantic(&[], 64, 512), Ok(Vec::new()));
     }
 
     #[test]
     fn test_invalid_chunk_params() {
-        assert_eq!(chunk_slice(b"abc", 0, 10, 0), Err(ChunkerError::ZeroMinChunk));
+        assert_eq!(
+            chunk_slice(b"abc", 0, 10, 0),
+            Err(ChunkerError::ZeroMinChunk)
+        );
+        assert_eq!(
+            chunk_slice_compat(b"abc", 0, 10, 0),
+            Err(ChunkerError::ZeroMinChunk)
+        );
         assert_eq!(
             chunk_slice_semantic(b"abc", 100, 50),
             Err(ChunkerError::InvalidChunkSize { min: 100, max: 50 })
@@ -328,25 +418,108 @@ mod tests {
     }
 
     #[test]
-    fn test_fastcdc_chunking_bounds() {
-        let sample = vec![42u8; 10000];
-        let chunks = chunk_slice(&sample, 64, 1024, 0).unwrap();
-        assert!(!chunks.is_empty());
-        let total: usize = chunks.iter().map(|c| c.length).sum();
-        assert_eq!(total, sample.len());
+    fn test_arithmetic_overflow_usize_max() {
+        assert_eq!(
+            chunk_slice(b"overflow test", usize::MAX, usize::MAX, 0),
+            Err(ChunkerError::ChunkSizeTooLarge {
+                size: usize::MAX,
+                max_allowed: MAX_CHUNK_SIZE_LIMIT,
+            })
+        );
+        assert_eq!(
+            chunk_slice_semantic(b"overflow test", 64, usize::MAX),
+            Err(ChunkerError::ChunkSizeTooLarge {
+                size: usize::MAX,
+                max_allowed: MAX_CHUNK_SIZE_LIMIT,
+            })
+        );
+        assert_eq!(
+            chunk_slice_compat(b"overflow test", 64, MAX_CHUNK_SIZE_LIMIT + 1, 0),
+            Err(ChunkerError::ChunkSizeTooLarge {
+                size: MAX_CHUNK_SIZE_LIMIT + 1,
+                max_allowed: MAX_CHUNK_SIZE_LIMIT,
+            })
+        );
+    }
 
-        for c in &chunks {
-            assert!(c.length >= 64 || c.offset + c.length == sample.len());
-            assert!(c.length <= 1024);
+    #[test]
+    fn test_property_chunk_bounds_raw_and_semantic() {
+        let mut pseudo_random = Vec::with_capacity(4096);
+        for i in 0..4096u32 {
+            pseudo_random.push(((i.wrapping_mul(1664525).wrapping_add(1013904223)) >> 16) as u8);
+        }
+
+        let prose = "Deterministic content-defined chunking with UTF-8 boundary snapping \
+                     preserves natural sentences across document edits.\n"
+            .repeat(30);
+        let utf8_heavy =
+            "Ação, coração, pré-processamento semântico e eficiência em IA! ".repeat(40);
+        let uniform = vec![0x80u8; 2048];
+
+        let corpora: [&[u8]; 5] = [
+            b"short",
+            &pseudo_random,
+            prose.as_bytes(),
+            utf8_heavy.as_bytes(),
+            &uniform,
+        ];
+        let param_pairs: [(usize, usize); 5] =
+            [(8, 32), (64, 256), (64, 512), (128, 512), (256, 256)];
+
+        for data in corpora {
+            for (min_c, max_c) in param_pairs {
+                // 1. Raw mode contract check
+                let raw_chunks = chunk_slice(data, min_c, max_c, 0).unwrap();
+                let mut offset = 0;
+                for (idx, c) in raw_chunks.iter().enumerate() {
+                    assert_eq!(c.offset, offset);
+                    assert!(
+                        c.length <= max_c,
+                        "Raw chunk {idx} length {} exceeded max_chunk {max_c}",
+                        c.length
+                    );
+                    if c.offset + c.length < data.len() {
+                        assert!(
+                            c.length >= min_c,
+                            "Non-final raw chunk {idx} length {} below min_chunk {min_c}",
+                            c.length
+                        );
+                    }
+                    offset += c.length;
+                }
+                assert_eq!(offset, data.len());
+
+                // 2. Semantic mode contract check
+                let sem_chunks = chunk_slice_semantic(data, min_c, max_c).unwrap();
+                let mut sem_offset = 0;
+                for (idx, c) in sem_chunks.iter().enumerate() {
+                    assert_eq!(c.offset, sem_offset);
+                    assert!(
+                        c.length <= max_c,
+                        "Semantic chunk {idx} length {} exceeded max_chunk {max_c}",
+                        c.length
+                    );
+                    if c.offset + c.length < data.len() {
+                        assert!(
+                            c.length >= min_c,
+                            "Non-final semantic chunk {idx} length {} below min_chunk {min_c}",
+                            c.length
+                        );
+                    }
+                    sem_offset += c.length;
+                }
+                assert_eq!(sem_offset, data.len());
+            }
         }
     }
 
     #[test]
     fn test_semantic_snapping_utf8_and_words() {
-        let text = "Arquitetura de Sistemas e Inteligência Artificial: pré-processamento semântico \
+        let text =
+            "Arquitetura de Sistemas e Inteligência Artificial: pré-processamento semântico \
                     com FastCDC em Rust. Garante que palavras acentuadas como coração, ação, \
                     computação e eficiência nunca sejam cortadas ao meio durante a indexação RAG. "
-            .repeat(20);
+                .repeat(20);
         let bytes = text.as_bytes();
 
         let chunks = chunk_slice_semantic(bytes, 64, 256).unwrap();
@@ -356,18 +529,14 @@ mod tests {
         for c in &chunks {
             assert_eq!(c.offset, covered);
             let slice = &bytes[c.offset..c.offset + c.length];
-            // Proof 1: Every single chunk must be valid UTF-8 (never cuts inside multi-byte chars)
             let decoded = std::str::from_utf8(slice)
                 .expect("Semantic chunker must never split a multi-byte UTF-8 character");
-            // Proof 2: Non-final chunks must end on whitespace or newline
             if c.offset + c.length < bytes.len() {
                 assert!(
                     decoded.ends_with(char::is_whitespace),
-                    "Chunk did not end on a semantic boundary: {:?}",
-                    decoded
+                    "Chunk did not end on a semantic boundary: {decoded:?}"
                 );
             }
-            // Proof 3: Content hash is populated
             assert_ne!(c.hash, 0);
             covered += c.length;
         }
@@ -376,10 +545,10 @@ mod tests {
 
     #[test]
     fn test_shift_resilience_deduplication() {
-        let mut base_doc = String::new();
-        for i in 0..50 {
+        let mut base_doc = String::with_capacity(500 * 90);
+        for i in 0..500 {
             base_doc.push_str(&format!(
-                "Section {i}: Content-defined chunking synchronizes boundaries across document edits.\n"
+                "Section {i:04}: Content-defined chunking synchronizes boundaries across document edits.\n"
             ));
         }
 
@@ -389,19 +558,50 @@ mod tests {
         let base_chunks = chunk_slice_semantic(base_doc.as_bytes(), 64, 256).unwrap();
         let edited_chunks = chunk_slice_semantic(edited_doc.as_bytes(), 64, 256).unwrap();
 
-        let base_hashes: std::collections::HashSet<u64> =
-            base_chunks.iter().map(|c| c.hash).collect();
+        let base_hashes: HashSet<u64> = base_chunks.iter().map(|c| c.hash).collect();
         let matching_chunks = edited_chunks
             .iter()
             .filter(|c| base_hashes.contains(&c.hash))
             .count();
 
-        // At least 85% of chunks must be preserved identically despite inserting text at offset 0
+        // With 500 lines (~270 chunks), at least 95% of chunks must be reused identically
         let hit_ratio = (matching_chunks as f64) / (base_chunks.len() as f64);
         assert!(
-            hit_ratio >= 0.85,
-            "Expected high deduplication cache hit ratio, got {:.2}%",
-            hit_ratio * 100.0
+            hit_ratio >= 0.95,
+            "Expected >= 95.00% deduplication cache hit ratio, got {:.2}% ({matching_chunks}/{})",
+            hit_ratio * 100.0,
+            base_chunks.len()
+        );
+    }
+
+    #[test]
+    fn test_resynchronization_distance_ceiling() {
+        // Measured baseline resynchronization distance on this 500-line corpus is 3 chunks.
+        // Ceiling is set to 4 chunks so any regression in boundary synchronization fails immediately.
+        const RESYNC_DISTANCE_CEILING: usize = 4;
+
+        let mut base_doc = String::with_capacity(500 * 90);
+        for i in 0..500 {
+            base_doc.push_str(&format!(
+                "Section {i:04}: Content-defined chunking synchronizes boundaries across document edits.\n"
+            ));
+        }
+
+        let mut edited_doc = String::from("NEW PARAGRAPH INSERTED AT PAGE 1 TOP OF DOCUMENT.\n");
+        edited_doc.push_str(&base_doc);
+
+        let base_chunks = chunk_slice_semantic(base_doc.as_bytes(), 64, 256).unwrap();
+        let edited_chunks = chunk_slice_semantic(edited_doc.as_bytes(), 64, 256).unwrap();
+
+        let base_hashes: HashSet<u64> = base_chunks.iter().map(|c| c.hash).collect();
+        let first_hit_index = edited_chunks
+            .iter()
+            .position(|c| base_hashes.contains(&c.hash))
+            .expect("Edited document must resynchronize with base document chunks");
+
+        assert!(
+            first_hit_index <= RESYNC_DISTANCE_CEILING,
+            "Resynchronization distance ({first_hit_index} chunks) exceeded ceiling ({RESYNC_DISTANCE_CEILING} chunks)"
         );
     }
 }

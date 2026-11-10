@@ -7,13 +7,12 @@ Evaluates:
 """
 
 from __future__ import annotations
-import ctypes
 import math
-import os
-import sys
 import time
 from typing import List, Set, Tuple
 
+# 256-entry pseudo-random Gear lookup table derived from sleepybishop/fastcdc
+# (Copyright (c) 2020 Joseph Calderon, MIT License).
 GEAR: List[int] = [
     0x5C95C078, 0x22408989, 0x2D48A214, 0x12842087, 0x530F8AFB, 0x474536B9,
     0x2963B4F1, 0x44CB738B, 0x4EA7403D, 0x4D606B6E, 0x074EC5D3, 0x3AF39D18,
@@ -281,13 +280,21 @@ def run_verification_and_benchmarks() -> None:
     try:
         import fast_rag_chunker
         t4 = time.perf_counter()
-        rust_raw = fast_rag_chunker.chunk_documents_batch(dataset, 64, 512, 0x1F, False)
+        rust_raw = fast_rag_chunker.chunk_documents_batch(
+            dataset, min_chunk=64, max_chunk=512, semantic_snap=False
+        )
         t5 = time.perf_counter()
         t6 = time.perf_counter()
-        rust_sem = fast_rag_chunker.chunk_documents_batch(dataset, 64, 512, 0x1F, True)
+        rust_sem = fast_rag_chunker.chunk_documents_batch(
+            dataset, min_chunk=64, max_chunk=512, semantic_snap=True
+        )
         t7 = time.perf_counter()
-        print(f"[Rust PyO3 Raw FastCDC]     {t5 - t4:.4f} s ({total_mb / (t5 - t4):.2f} MB/s)")
-        print(f"[Rust PyO3 Semantic Snap]   {t7 - t6:.4f} s ({total_mb / (t7 - t6):.2f} MB/s)")
+        print(
+            f"[Rust PyO3 Raw FastCDC]     {t5 - t4:.4f} s ({total_mb / (t5 - t4):.2f} MB/s) | {len(rust_raw[0])} chunks/doc"
+        )
+        print(
+            f"[Rust PyO3 Semantic Snap]   {t7 - t6:.4f} s ({total_mb / (t7 - t6):.2f} MB/s) | {len(rust_sem[0])} chunks/doc"
+        )
     except ImportError:
         print("[Info] Native Rust extension not installed in current venv (run `maturin develop --release`).")
 
