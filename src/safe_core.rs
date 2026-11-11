@@ -88,7 +88,7 @@ impl ChunkerConfig {
         mode: ChunkingMode,
         compute_hash: bool,
     ) -> Result<Self, ChunkerError> {
-        let (mi, default_avg, ma) = validate_chunk_params(min_chunk, max_chunk)?;
+        let (_, default_avg, _) = validate_chunk_params(min_chunk, max_chunk)?;
         let avg = match avg_chunk {
             Some(user_avg) => {
                 if user_avg < min_chunk || user_avg > max_chunk {
@@ -102,7 +102,6 @@ impl ChunkerConfig {
             }
             None => default_avg as usize,
         };
-        let _ = (mi, ma);
         Ok(Self {
             min_chunk,
             avg_chunk: avg,

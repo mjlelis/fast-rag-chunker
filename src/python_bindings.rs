@@ -162,6 +162,7 @@ pub fn chunker_fingerprint(
 /// and the `ChunkerConfig` fingerprint.
 #[cfg(feature = "python")]
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
 #[pyo3(signature = (chunk, model_id, config=None, *, min_chunk=64, avg_chunk=None, max_chunk=512, mode="semantic", compute_hash=true))]
 pub fn cache_key(
     chunk: &PyChunkResult,
