@@ -1,0 +1,90 @@
+O  ou também  (em inglês: machine learning) é um subcampo da Engenharia e da ciência da computação que evoluiu do estudo de reconhecimento de padrões e da teoria do aprendizado computacional em inteligência artificial. Em 1959, Arthur Samuel definiu aprendizado de máquina como o "campo de estudo que dá aos computadores a habilidade de aprender sem serem explicitamente programados"(livre tradução).  O aprendizado automático explora o estudo e construção de algoritmos que podem aprender de seus erros e fazer previsões sobre dados. Tais algoritmos operam construindo um modelo a partir de inputs amostrais a fim de fazer previsões ou decisões guiadas pelos dados ao invés de simplesmente seguindo inflexíveis e estáticas instruções programadas. Enquanto que na inteligência artificial existem dois tipos de raciocínio (o indutivo, que extrai regras e padrões de grandes conjuntos de dados, e o dedutivo), o aprendizado de máquina só se preocupa com o indutivo.
+
+Algumas partes do aprendizado automático estão intimamente ligadas (e muitas vezes sobrepostas) à estatística computacional; uma disciplina que foca em como fazer previsões através do uso de computadores, com pesquisas focando nas propriedades dos métodos estatísticos e sua complexidade computacional. Ela tem fortes laços com a otimização matemática, que produz métodos, teoria e domínios de aplicação para este campo. O aprendizado automático é usado em uma variedade de tarefas computacionais onde criar e programar algoritmos explícitos é impraticável. Exemplos de aplicações incluem filtragem de spam, reconhecimento ótico de caracteres (OCR), processamento de linguagem natural, motores de busca, diagnósticos médicos, bioinformática, reconhecimento de fala, reconhecimento de escrita, visão computacional e locomoção de robôs. O aprendizado de máquinas é às vezes confundido com mineração de dados, que é um sub-campo que foca mais em análise exploratória de dados e é conhecido como aprendizado não supervisionado. No campo da análise de dados, o aprendizado de máquinas é um método usado para planejar modelos complexos e algoritmos que prestam-se para fazer predições- no uso comercial, isso é conhecido como análise preditiva. Esses modelos analíticos permitem que pesquisadores, cientistas de dados, engenheiros, e analistas possam "produzir decisões e resultados confiáveis e repetitíveis" e descobrir os "insights escondidos" através do aprendizado das relações e tendências históricas nos dados.
+
+As contribuições para a fundação da aprendizagem automática (aprendizado de máquina) feitas pelos cientistas John Hopfield e Geoffrey Hinton foram distinguidas em 2024 com o Prémio Nobel de Física. O Comité Nobel destacou os cientistas por "descobertas fundamentais e invenções que permitem aprendizagem automática com redes neuronais artificiais”.
+
+## Resumo
+Tom M. Mitchell forneceu uma definição mais formal amplamente citada: "Diz-se que um programa de computador aprende pela experiência E, com respeito a algum tipo de tarefa T e performance P, se sua performance P nas tarefas em T, na forma medida por P, melhoram com a experiência E." Esta definição das tarefas envolvidas no aprendizado de máquina é dada de forma fundamentalmente operacional, ao invés de cognitiva, seguindo a proposta de Alan Turing em seu artigo "Computadores e inteligência", em que a pergunta "As máquinas são capazes de pensar?" seja substituída pela pergunta "As máquinas são capazes de fazer o que (nós como entidades pensantes) podemos fazer?"
+
+### Tipos de problemas e tarefas
+As tarefas de aprendizado de máquina são tipicamente classificadas em três categorias amplas, de acordo com a natureza do "sinal" ou "feedback" de aprendizado disponível para um sistema de aprendizado. Essas categorias são:
+* Aprendizado supervisionado: São apresentadas ao computador exemplos de entradas e saídas desejadas, fornecidas por um "professor". O objetivo é aprender uma regra geral que mapeia as entradas para as saídas.
+* Aprendizado não supervisionado: Nenhum tipo de etiqueta é dado ao algoritmo de aprendizado, deixando-o sozinho para encontrar estrutura nas entradas fornecidas. O aprendizado não supervisionado pode ser um objetivo em si mesmo (descobrir novos padrões nos dados) ou um meio para atingir um fim.
+* Aprendizado por reforço: Um programa de computador interage com um ambiente dinâmico, em que o programa deve desempenhar determinado objetivo (por exemplo, dirigir um veículo). É fornecido, ao programa, feedback quanto a premiações e punições, na medida em que é navegado o espaço do problema. Outro exemplo de aprendizado por reforço é aprender a jogar um determinado jogo apenas jogando contra um oponente.
+Entre o aprendizado supervisionado e o não supervisionado, está o aprendizado semi-supervisionado, em que o professor fornece um sinal de treinamento incompleto: um conjunto de dados de treinamento com algumas (muitas vezes várias) das saídas desejadas ausentes. A transdução é um caso especial deste princípio, em que o conjunto inteiro das instâncias do problema é conhecido no momento do aprendizado, mas com parte dos objetivos ausente.
+
+Entre outras categorias de problemas de aprendizado de máquina, o meta-aprendizado aprende seu próprio viés indutivo com base em experiência prévias. A robótica epigenética, elaborada para o aprendizado de robôs, gera suas próprias sequências de situações de aprendizado (também chamadas de 'currículo'), para adquirir cumulativamente repertórios de novas habilidades, através de uma auto-exploração autônoma e da interação social com professores humanos. Faz uso de técnicas como aprendizado ativo, maturação, sinergias motoras e imitação.
+
+Outra categorização de tarefas de aprendizado de máquina surge quando se considera a saída desejada em um sistema de aprendizado de máquina:
+* Em classificação, entradas são divididas em duas ou mais classes, e o aprendiz deve produzir um modelo que vincula entradas não vistas a uma ou mais dessas classes (classificação multi-etiquetada). Isso é tipicamente abordado de forma supervisionada. A filtragem de spam é um exemplo de classificação, em que as entradas são as mensagens de emails (ou outros) e as classes são "spam" ou "não spam".
+* Em regressão, também um problema supervisionado, as saídas são contínuas, em vez de discretas.
+* Em clustering, um conjunto de entradas é dividido em grupos. De maneira diferente da classificação, os grupos não são conhecidos previamente, tornando o clustering uma tarefa tipicamente não supervisionada.
+* A estimativa de densidades encontra a distribuição de entradas em algum espaço.
+* A redução dimensional simplifica as entradas ao mapeá-las para um espaço de menor dimensão. A modelagem de tópicos é um problema relacionado, em que é fornecida ao programa uma lista de documentos em linguagem natural, solicitando que encontre documentos tratando de tópicos similares.
+
+## História e relação com outros campos
+Como um esforço científico, o aprendizado de máquina cresceu a partir da busca pela inteligência artificial. Ainda nos princípios da IA como disciplina acadêmica, alguns pesquisadores já se interessavam em fazer máquinas aprenderem a partir de dados. Eles tentaram abordar o problema desde vários métodos simbólicos, assim como com o que foi então nomeado de "rede neural artificial"; estes eram majoritariamente perceptrons e outros modelos que mais tardes foram entendidos como reinvenções de modelos linear generalizados de estatística. A lógica probabilística também foi usada, especialmente em diagnósticos médicos automatizados. Trabalhos em aprendizado baseado em conhecimento/simbólico continuaram com a IA, levando até a programação lógica indutiva, mas agora as pesquisas mais voltadas para a estatística estavam fora do campo da IA, em reconhecimento de padrões e recuperação de informação.
+
+### Relação com estatística
+O aprendizado de máquina e a estatística são campos intimamente relacionados. De acordo com Michael I. Jordan, as ideias do aprendizado de máquina, dos princípios metodológicos às ferramentas teóricas, tem uma longa pré-história na estatística. Ele também sugeriu o termo ciência de dados como um substituto para chamar o campo como um todo. onde "modelo algorítmico" significa mais ou menos os algoritmos do aprendizado de máquina como a Floresta aleatória.
+
+Alguns estatísticos tem adotado métodos do aprendizado de máquinas, levando ao campo combinado que eles chamam de aprendizado estatístico.
+
+## Teoria
+
+Um dos objetivos centrais de um aprendiz é generalizar a partir de suas experiências. Generalização neste contexto é a habilidade de uma máquina aprendiz de desempenhar com precisão em novos, não vistos, exemplos/tarefas depois de ter experimentado um conjunto de dados de aprendizado. Os exemplos de treinamento vem de algumas, geralmente desconhecidas, distribuições de probabilidade (consideradas representativas do espaço de ocorrência) e o aprendiz tem de construir um modelo geral sobre este espaço que o permita produzir previsões o suficientemente precisas em novos casos.
+
+A análise computacional de algoritmos de aprendizado de máquina e sua performance é um ramo da ciência da computação teórica conhecida como teoria do aprendizado computacional. Porque os conjuntos de treinamento são finitos e o futuro é incerto, a teoria de aprendizado normalmente não guarda garantias para a performance dos algoritmos. Em vez disso, previsões probabilísticas para a performance são bastante comuns. O trade-off entre variância e viés é uma forma de qualificar o erro de generalização.
+
+Para uma melhor performance no contexto de generalização, a complexidade da hipótese deveria combinar com a complexidade da função subjacente aos dados. Se a hipótese é menos complexa que a função, então o modelo sub-ajustou (underfitting) os dados. Se a complexidade do modelo é aumentada em resposta, então o erro de treinamento diminui. Mas se a hipótese é muito complexa, então o modelo foi sobreajustado (overfitting), e a generalização será mais pobre.
+
+Em adição aos limites da performance, teóricos do aprendizado computacional estudam a complexidade do tempo e a viabilidade do aprendizado. Na teoria do aprendizado computacional, uma computação é considerada viável se puder ser feita em tempo polinomial.  Há dois tipos de resultados de complexidade temporal. Resultados positivos mostram que uma certa classe de funções pode ser aprendida em tempo polinomial. Resultados negativos mostram que certas classes não podem ser aprendidas em tempo polinomial.
+
+## Abordagens
+
+### Aprendizado/aprendizagem baseado em árvores de decisão
+Aprendizado baseado em árvores de decisão usa a árvore de decisão como um modelo de previsão, o qual mapeia as observações sobre um item às conclusões sobre o valor do objetivo desse item.
+
+### Aprendizado/aprendizagem por regras de associação
+
+Aprendizado por regras de associação é um método para descobrir relações interessantes entre variáveis em base de dados grandes.
+
+### Rede neural artificial
+
+Um algoritmo de aprendizado de rede neural artificial (aprendizagem de rede neuronal artificial), normalmente chamado de "rede neural" ou "rede neuronal" (RN), é um algoritmo do tipo "machine learning" que é inspirado na estrutura e aspectos funcionais das redes neurais biológicas.  Computações são estruturadas em termos de um grupo interconectado de neurônios artificiais, processando informação usando uma abordagem de conexionismo na computação. Redes neuronais modernas são ferramentas de modelagem de dados estatísticos não lineares. Normalmente eles são usados para modelar relações complexas entre entradas e saídas, para encontrar padrões nos dados, ou para capturar a estrutura estatística em uma distribuição de probabilidade conjunta desconhecida entre variáveis observáveis.
+
+### Aprendizado profundo (aprendizagem profunda)
+
+Os preços mais baixos do hardware e o desenvolvimento de GPUs para uso pessoal nos últimos anos contribuiu para o desenvolvimento do conceito de aprendizado profundo, que consiste em múltiplas camadas escondidas em uma rede neural artificial. Esta abordagem tenta modelar a forma com que o cérebro humano processa luz e som na visão e escuta. Alguns aplicações úteis do aprendizado profundo são visão computacional e reconhecimento de fala.
+
+### Lógica de programação indutiva
+Lógica de programação indutiva (LPI) é uma abordagem que regra o aprendizado fazendo uso de programação lógica como uma representação uniforme para exemplos de inputs, conhecimento de pano de fundo, e hipóteses. Dada uma codificação do pano de fundo conhecido do conhecimento e um conjunto de exemplos representados como uma base de dados lógica de fatos, um sistema LPI derivará uma lógica hipotética que envolve todos os exemplos positivos e não negativos. A programação indutiva é um campo relacionado que considera qualquer tipo de linguagem de programação para representar hipóteses (e não apenas programações lógicas), tais como as programações funcionais.
+
+### Máquinas de vetores de suporte
+
+Máquinas de vetores de suporte (MVSs) são um conjunto relacionado de métodos de aprendizado supervisionado usados para classificação e regressão. Dado um conjunto de exemplos de treinamento, cada um marcado como pertencente de uma ou duas categorias, um algoritmo de treino SVM constrói um modelo que prediz se um novo exemplo cai dentro de uma categoria ou outra.
+
+### Clustering
+
+Análise de clusters é a atribuição de um conjunto de observações à subconjuntos (chamados clusters) de forma que as observações dentro de um mesmo cluster são similares de acordo com algum critério ou critérios pré-designados, enquanto que observações feitas em clusters diferentes não são similares. Diferentes técnicas de clustering fazem diferentes suposições sobre a estrutura dos dados, freqüentemente definida por algumas métricas de similaridade e avaliados, por exemplo, por compacidade interna (similaridade entre membros de um mesmo cluster) e separação entre clusters diferentes. Outros métodos são baseado em estimações de densidade e gráficos de conectividade. Clustering é um método de aprendizado não supervisionado e uma técnica comum em análise de dados estatísticos.
+
+### Redes Bayesianas
+
+Uma rede bayesiana, rede de opinião ou um modelo gráfico acíclico dirigido é um modelo gráfico probabilístico que representa um conjunto de variáveis aleatórias e suas independências condicionais via um grafo acíclico dirigido (GAD). Por exemplo, uma rede bayesiana poderia representar as relações probabilísticas entre doenças e sintomas. Dado um sintoma, a rede pode ser usada para computar as probabilidades da presença de várias doenças. Existem algoritmos eficientes que desempenham inferência e aprendizado.
+
+### Aprendizado por reforço
+O aprendizado por reforço se preocupa com o como um agente deve agir em um ambiente de forma que maximize alguma noção de recompensa a longo tempo. Os algoritmos de aprendizado por reforço tentam encontrar a política que mapeia os estados do mundo às ações que o agente deve ter nesses estados. Aprendizado por reforço se distingue do problema do aprendizado supervisionado no sentindo em que pares de input/output corretos nunca são apresentados, nem as ações sub-ótimas são explicitamente corrigidas.
+
+### Aprendizado por representação
+Vários algoritmos de aprendizado, a maioria algoritmos de aprendizado não supervisionado, tem como objetivo descobrir melhores representações dos inputs que são dados durante o treinamento. Exemplos clássicos incluem análise de componentes principais e análise de clusters. Os algoritmos de aprendizado por representação com freqüência tentam preservar a informação e seu input mas transformando-a de forma que a torne útil, frequentemente como um passo pré-processamento antes de desempenhar classificações ou previsões, permitindo a reconstrução dos inputs vindos de dados geradores de distribuição desconhecidos, enquanto não sendo necessariamente fiel à configurações que são implausíveis sob essa distribuição.
+
+Algoritmos de aprendizado múltiplo tentam fazer isso sob a restrição de que a representação aprendida é de baixa dimensão. Algoritmos de código esparso tentam fazer isso sob a restrição de que a representação aprendida é espersa (tem muitos zeros). O algoritmo de aprendizado em subespaço multilinear tem como objetivo aprender representações de baixa dimensão diretamente das representações de tensores para dados multidimensionais, sem os transformar em vetores de alta dimensão. Algoritmos de aprendizado profundo descobrem múltiplos níveis de representação, ou uma hierarquia de características, com um nível mais alto, características mais abstratas definidas em termos de (ou geradas a partir de) características de nível mais baixo. Tem sido argumentado que uma máquina inteligente é aquela que aprende uma representação que desembaraça os fatores subjacentes de variação que explicam os dados observados.<nowiki/>
+
+### Aprendizado por similaridade e métrica
+Neste problema, se dá a máquina aprendiz pares de exemplos que são considerados similares e pares de objetos menos similares. Então ela precisa aprender uma função de similaridade (ou uma função de distancia métrica) que possa predizer se novos objetos são similares. Isso é as vezes usado em sistemas de recomendação.
+
+### Aprendizado por dicionário esparso
+Neste método, um dado é representado como uma combinação de ligar funções bases, e os coeficientes são assumidos como esparsos. Deixe x ser uma dado d-dimensional, D ser um d por n matrizes, onde cada coluna de D representa uma função base. r é o coeficiente para representar x usando D. Matematicamente, aprendizado por dicionário esparso significa resolver  <math>x \approx D r</math>  onde r é esparso. Falando genericamente, se assume que n é maior que d para permitir a liberdade para uma representação esparsa.
+
+Aprender um dicionário junto com representações esparsas é fortemente NP-completo e também difícil de resolver aproximadamente. Um método heurístico pop

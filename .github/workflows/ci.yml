@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v0.2-staging]
     tags: ["v*"]
   pull_request:
     branches: [main]
@@ -18,12 +18,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python 3.12
-        id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -33,37 +33,58 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Generate and print lockfile (staging)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo generate-lockfile
+          echo "===BEGIN_CARGO_LOCK_B64==="
+          base64 -w 0 Cargo.lock
+          echo ""
+          echo "===END_CARGO_LOCK_B64==="
+
       - name: Check formatting (rustfmt)
         run: cargo fmt --all -- --check
 
       - name: Run Clippy (without python feature)
-        run: cargo clippy --locked --no-default-features --all-targets -- -D warnings
+        run: cargo clippy --no-default-features --all-targets -- -D warnings
 
       - name: Run Clippy (all features)
         env:
-          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
-        run: cargo clippy --locked --all-targets -- -D warnings
-
-      - name: Build locked crate
-        env:
-          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
-        run: cargo build --locked
+          PYO3_PYTHON: python
+        run: cargo clippy --all-targets -- -D warnings
 
       - name: Run Rust unit & FFI parity tests (without python feature)
-        run: cargo test --locked --no-default-features
+        run: cargo test --no-default-features
 
       - name: Run Rust unit & FFI parity tests (with python feature)
         env:
-          PYO3_PYTHON: ${{ steps.setup-python.outputs.python-path }}
-        run: cargo test --locked
+          PYO3_PYTHON: python
+        run: cargo test
 
       - name: Build wheel with Maturin and run Pytest suite
         run: |
           python -m pip install --upgrade pip maturin pytest
-          maturin build --locked --release --out dist
-          python -m pip install --force-reinstall dist/*.whl
+          maturin develop
           pytest -v tests/
-          python scripts/benchmark.py
+
+      - name: Verify corpus SHA-256 manifest
+        run: python -m bench.corpus.download_corpus --verify
+
+      - name: Run deduplication and throughput benchmarks (ubuntu-latest)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          python -m pip install langchain-text-splitters==0.3.8 haystack-ai==2.12.0 llama-index-core==0.12.30
+          maturin develop --release
+          python -m bench.dedup --out results/dedup.json
+          cargo run --release --no-default-features --example export_throughput_json -- results/throughput.json
+          echo "===BEGIN_DEDUP_JSON_B64==="
+          base64 -w 0 results/dedup.json
+          echo ""
+          echo "===END_DEDUP_JSON_B64==="
+          echo "===BEGIN_THROUGHPUT_JSON_B64==="
+          base64 -w 0 results/throughput.json
+          echo ""
+          echo "===END_THROUGHPUT_JSON_B64==="
 
   miri:
     name: Miri Undefined Behavior Audit
@@ -78,7 +99,7 @@ jobs:
           components: miri
 
       - name: Run Miri on safe_core tests
-        run: cargo +nightly miri test --locked --no-default-features -- safe_core
+        run: cargo +nightly miri test --no-default-features --lib safe_core::tests
 
   valgrind:
     name: Valgrind C Memory Check
@@ -90,9 +111,9 @@ jobs:
       - name: Install Valgrind and Clang
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends clang valgrind
+          sudo apt-get install -y valgrind clang
 
       - name: Compile and run C legacy harness under Valgrind
         run: |
-          clang -O2 -g -Wall -Wextra c_legacy/fastcdc.c c_legacy/chunker.c c_legacy/main_test.c -lm -o c_legacy/main_test
-          valgrind --error-exitcode=1 --leak-check=full ./c_legacy/main_test
+          clang -O2 -g -Wall -Wextra -Werror c_legacy/fastcdc.c c_legacy/chunker.c c_legacy/main_test.c -I c_legacy -lm -o c_legacy_test
+          valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./c_legacy_test

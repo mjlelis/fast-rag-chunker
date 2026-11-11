@@ -1,6 +1,6 @@
 [package]
 name = "fast-rag-chunker"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["mjlelis <mjlelis@users.noreply.github.com>"]
 description = "Hybrid C/Rust/Python fast content-defined chunking (FastCDC) engine for RAG pipelines"
@@ -17,9 +17,17 @@ python = ["dep:pyo3"]
 extension-module = ["python", "pyo3/extension-module"]
 
 [dependencies]
-pyo3 = { version = "0.22", optional = true }
+blake3 = "1.5"
+pyo3 = { version = "0.24", optional = true }
 rayon = "1.10"
 thiserror = "1.0"
 
 [build-dependencies]
 cc = "1.0"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "throughput"
+harness = false
