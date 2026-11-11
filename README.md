@@ -63,6 +63,18 @@ All three tables below are automatically generated from [`results/dedup.json`](r
 <!-- BEGIN_DEDUP_TABLE -->
 | Splitter / Configuration | Top Insert | Mid-Sentence | Deletion | 5 Scattered | Moved Para | Whitespace | Real Wiki (EN+PT) | Mean Resync (Top Insert) |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **fast-rag-chunker (Semantic, 64..512B)** | 95.3% | 95.0% | 96.5% | 83.4% | 91.0% | 22.6% | **93.0%** | 2.10 chunks |
+| **fast-rag-chunker (Raw, 64..512B)** | 95.2% | 95.6% | 96.4% | 84.0% | 90.9% | 23.0% | **92.5%** | 2.37 chunks |
+| **Haystack DocumentSplitter (default: 200w, overlap=0)** | 0.0% | 25.0% | 21.7% | 16.9% | 35.5% | 0.0% | **59.8%** | 10.43 chunks |
+| **Haystack DocumentSplitter (equiv: 40w, overlap=0)** | 0.0% | 29.0% | 27.2% | 21.1% | 48.3% | 0.9% | **70.6%** | 50.00 chunks |
+| **LangChain RecursiveCharacter (default: 1000c, overlap=200)** | 92.3% | 92.7% | 91.1% | 63.9% | 83.3% | 9.1% | **88.5%** | 1.67 chunks |
+| **LangChain RecursiveCharacter (equiv: 256c, overlap=32)** | 98.3% | 96.4% | 99.6% | 92.0% | 99.1% | 34.8% | **94.8%** | 1.40 chunks |
+| **LlamaIndex SentenceSplitter (default: 1024t, overlap=200)** | 43.0% | 67.7% | 29.8% | 7.3% | 23.4% | 0.0% | **58.9%** | 2.23 chunks |
+| **LlamaIndex SentenceSplitter (equiv: 64t, overlap=8)** | 96.5% | 96.8% | 97.6% | 86.1% | 94.0% | 65.4% | **94.4%** | 2.17 chunks |
+| **Fixed Window + Overlap (default: 1024B, overlap=128B)** | 0.0% | 25.8% | 22.9% | 18.2% | 39.2% | 0.0% | **52.2%** | 15.63 chunks |
+| **Fixed Window + Overlap (equiv: 256B, overlap=32B)** | 0.0% | 28.5% | 26.6% | 21.3% | 48.7% | 0.4% | **55.7%** | 60.97 chunks |
+| **Paragraph Split + Hash (default: unbounded \n\n)** | 98.8% | 94.3% | 100.0% | 72.1% | 94.6% | 16.7% | **88.6%** | 1.00 chunks |
+| **Paragraph Split + Hash (equiv: bounded 64..512B)** | 97.7% | 94.8% | 97.8% | 71.4% | 92.3% | 16.6% | **91.8%** | 1.13 chunks |
 <!-- END_DEDUP_TABLE -->
 
 ### 2. Chunk Size Distribution (`results/dedup.json`)
@@ -72,6 +84,18 @@ Measured across the 30-document bilingual corpus (`python3 -m bench.dedup --out 
 <!-- BEGIN_SIZE_DIST_TABLE -->
 | Splitter / Configuration | Variant | Total Chunks | Min (B) | p5 (B) | p50 / Median (B) | Mean (B) | p95 (B) | Max (B) |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **fast-rag-chunker (Semantic, 64..512B)** | `default` | 1512 | 1 | 108.6 | 242.0 | 266.4 | 502.5 | 512 |
+| **fast-rag-chunker (Raw, 64..512B)** | `default` | 1624 | 12 | 90.0 | 220.0 | 248.1 | 506.8 | 512 |
+| **Haystack DocumentSplitter (default: 200w, overlap=0)** | `default` | 309 | 75 | 844.6 | 1343.0 | 1303.7 | 1532.0 | 1956 |
+| **Haystack DocumentSplitter (equiv: 40w, overlap=0)** | `equivalent` | 1483 | 3 | 218.0 | 269.0 | 271.6 | 333.9 | 799 |
+| **LangChain RecursiveCharacter (default: 1000c, overlap=200)** | `default` | 563 | 14 | 272.0 | 813.0 | 745.3 | 1012.0 | 1045 |
+| **LangChain RecursiveCharacter (equiv: 256c, overlap=32)** | `equivalent` | 2264 | 9 | 30.0 | 231.0 | 188.8 | 263.0 | 274 |
+| **LlamaIndex SentenceSplitter (default: 1024t, overlap=200)** | `default` | 125 | 1269 | 1991.6 | 3904.0 | 3766.8 | 5188.2 | 5555 |
+| **LlamaIndex SentenceSplitter (equiv: 64t, overlap=8)** | `equivalent` | 2006 | 20 | 102.0 | 206.0 | 202.2 | 297.0 | 387 |
+| **Fixed Window + Overlap (default: 1024B, overlap=128B)** | `default` | 458 | 139 | 961.5 | 1024.0 | 999.2 | 1024.0 | 1024 |
+| **Fixed Window + Overlap (equiv: 256B, overlap=32B)** | `equivalent` | 1811 | 34 | 256.0 | 256.0 | 253.9 | 256.0 | 256 |
+| **Paragraph Split + Hash (default: unbounded \n\n)** | `default` | 1111 | 3 | 16.0 | 254.0 | 362.6 | 959.5 | 8002 |
+| **Paragraph Split + Hash (equiv: bounded 64..512B)** | `equivalent` | 1017 | 13 | 93.8 | 460.0 | 396.1 | 511.2 | 512 |
 <!-- END_SIZE_DIST_TABLE -->
 
 ### 3. Native Throughput: Single-Thread vs. Rayon (`results/throughput.json`)
@@ -79,8 +103,14 @@ Measured across the 30-document bilingual corpus (`python3 -m bench.dedup --out 
 To avoid conflating algorithmic cost with multi-core parallelism, single-thread (`num_threads=1`) and multi-thread (`Rayon` thread pool) measurements are reported separately (`cargo bench --bench throughput` and `cargo run --release --no-default-features --example export_throughput_json -- results/throughput.json`):
 
 <!-- BEGIN_THROUGHPUT_TABLE -->
+*Hardware environment: CPU `AMD EPYC 7763 64-Core Processor` | Logical cores: `4` | Rayon pool threads: `4` | Config: `min=64, avg=256, max=512` | Command: `cargo bench --bench throughput`*
+
 | Mode & Hashing Configuration | 1 MB (`num_threads=1`) | 100 MB (`num_threads=1`) | Batch 256x4KB (`num_threads=1`) | Batch 256x4KB (`Rayon` Multi-Thread) |
 | :--- | ---: | ---: | ---: | ---: |
+| **Raw FastCDC (compute_hash=False)** | 1704.99 MB/s | 1850.60 MB/s | 1833.57 MB/s | **3709.43 MB/s** |
+| **Raw FastCDC + BLAKE3-128** | 532.24 MB/s | 532.04 MB/s | 519.76 MB/s | **1589.43 MB/s** |
+| **Semantic Snap (compute_hash=False)** | 1282.96 MB/s | 1284.31 MB/s | 1194.10 MB/s | **2353.90 MB/s** |
+| **Semantic Snap + BLAKE3-128** | 464.63 MB/s | 464.27 MB/s | 455.57 MB/s | **1300.88 MB/s** |
 <!-- END_THROUGHPUT_TABLE -->
 
 ---

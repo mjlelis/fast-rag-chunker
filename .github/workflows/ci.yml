@@ -71,6 +71,10 @@ jobs:
       - name: Verify corpus SHA-256 manifest
         run: python -m bench.corpus.download_corpus --verify
 
+      - name: Verify README tables are synchronized
+        if: matrix.os == 'ubuntu-latest'
+        run: python scripts/generate_readme_tables.py --check
+
       - name: Run deduplication and throughput benchmarks (ubuntu-latest)
         if: matrix.os == 'ubuntu-latest'
         run: |

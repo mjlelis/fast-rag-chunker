@@ -1,0 +1,52 @@
+{
+  "benchmark": "criterion_throughput_v0.2.0",
+  "command": "cargo bench --bench throughput",
+  "hardware": {
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "logical_cores": 4,
+    "rayon_threads": 4
+  },
+  "config": {
+    "min_chunk": 64,
+    "avg_chunk": 256,
+    "max_chunk": 512
+  },
+  "results": [
+    {
+      "mode_id": "raw_no_hash",
+      "label": "Raw FastCDC (compute_hash=False)",
+      "compute_hash": false,
+      "single_thread_1mb_mb_s": 1704.99,
+      "single_thread_100mb_mb_s": 1850.60,
+      "batch_256x4kb_1_thread_mb_s": 1833.57,
+      "batch_256x4kb_rayon_mb_s": 3709.43
+    },
+    {
+      "mode_id": "raw_with_hash",
+      "label": "Raw FastCDC + BLAKE3-128",
+      "compute_hash": true,
+      "single_thread_1mb_mb_s": 532.24,
+      "single_thread_100mb_mb_s": 532.04,
+      "batch_256x4kb_1_thread_mb_s": 519.76,
+      "batch_256x4kb_rayon_mb_s": 1589.43
+    },
+    {
+      "mode_id": "semantic_no_hash",
+      "label": "Semantic Snap (compute_hash=False)",
+      "compute_hash": false,
+      "single_thread_1mb_mb_s": 1282.96,
+      "single_thread_100mb_mb_s": 1284.31,
+      "batch_256x4kb_1_thread_mb_s": 1194.10,
+      "batch_256x4kb_rayon_mb_s": 2353.90
+    },
+    {
+      "mode_id": "semantic_with_hash",
+      "label": "Semantic Snap + BLAKE3-128",
+      "compute_hash": true,
+      "single_thread_1mb_mb_s": 464.63,
+      "single_thread_100mb_mb_s": 464.27,
+      "batch_256x4kb_1_thread_mb_s": 455.57,
+      "batch_256x4kb_rayon_mb_s": 1300.88
+    }
+  ]
+}
