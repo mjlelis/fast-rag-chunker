@@ -141,7 +141,45 @@ def _make_langchain_splitter(chunk_size: int, chunk_overlap: int):
 # 4. Baseline 3: LlamaIndex SentenceSplitter
 # ---------------------------------------------------------------------------
 def _make_llamaindex_splitter(chunk_size: int, chunk_overlap: int):
+    # Approx 4 chars per token in LlamaIndex default tokenizer
+    char_target = chunk_size * 4
+    char_overlap = chunk_overlap * 4
+
+    def _split_fallback(text: str) -> List[ChunkSpan]:
+        sentences = re.split(r"(?<=[.!?])\s+|\n+", text)
+        chunks = []
+        current: List[str] = []
+        cur_len = 0
+        for sent in sentences:
+            if not sent:
+                continue
+            s_len = len(sent) + 1
+            if cur_len + s_len > char_target and current:
+                chunks.append(" ".join(current))
+                overlap_buf: List[str] = []
+                ov_len = 0
+                for prev in reversed(current):
+                    if ov_len + len(prev) > char_overlap:
+                        break
+                    overlap_buf.insert(0, prev)
+                    ov_len += len(prev) + 1
+                current = overlap_buf
+                cur_len = ov_len
+            current.append(sent)
+            cur_len += s_len
+        if current:
+            chunks.append(" ".join(current))
+        return _spans_from_strings(chunks)
+
     try:
+        import nltk
+
+        try:
+            nltk.download("punkt_tab", quiet=True)
+            nltk.download("punkt", quiet=True)
+        except Exception:
+            pass
+
         from llama_index.core.node_parser import SentenceSplitter
 
         splitter = SentenceSplitter(
@@ -151,42 +189,17 @@ def _make_llamaindex_splitter(chunk_size: int, chunk_overlap: int):
 
         def _split(doc_bytes: bytes) -> List[ChunkSpan]:
             text = doc_bytes.decode("utf-8")
-            return _spans_from_strings(splitter.split_text(text))
+            try:
+                return _spans_from_strings(splitter.split_text(text))
+            except Exception:
+                return _split_fallback(text)
 
         return _split
     except Exception:
-        # Approx 4 chars per token in LlamaIndex default tokenizer
-        char_target = chunk_size * 4
-        char_overlap = chunk_overlap * 4
+        def _split_bytes(doc_bytes: bytes) -> List[ChunkSpan]:
+            return _split_fallback(doc_bytes.decode("utf-8"))
 
-        def _split_fallback(doc_bytes: bytes) -> List[ChunkSpan]:
-            text = doc_bytes.decode("utf-8")
-            sentences = re.split(r"(?<=[.!?])\s+|\n+", text)
-            chunks = []
-            current: List[str] = []
-            cur_len = 0
-            for sent in sentences:
-                if not sent:
-                    continue
-                s_len = len(sent) + 1
-                if cur_len + s_len > char_target and current:
-                    chunks.append(" ".join(current))
-                    overlap_buf: List[str] = []
-                    ov_len = 0
-                    for prev in reversed(current):
-                        if ov_len + len(prev) > char_overlap:
-                            break
-                        overlap_buf.insert(0, prev)
-                        ov_len += len(prev) + 1
-                    current = overlap_buf
-                    cur_len = ov_len
-                current.append(sent)
-                cur_len += s_len
-            if current:
-                chunks.append(" ".join(current))
-            return _spans_from_strings(chunks)
-
-        return _split_fallback
+        return _split_bytes
 
 
 # ---------------------------------------------------------------------------
