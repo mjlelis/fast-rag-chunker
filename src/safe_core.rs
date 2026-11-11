@@ -296,13 +296,8 @@ fn clamp(x: u32, a: u32, b: u32) -> u32 {
 }
 
 #[inline]
-fn div_ceil(a: u32, b: u32) -> u32 {
-    a / b + if a % b != 0 { 1 } else { 0 }
-}
-
-#[inline]
 fn normal_size(mi: u32, av: u32, len: u32) -> u32 {
-    let mut off = mi + div_ceil(mi, 2);
+    let mut off = mi + mi.div_ceil(2);
     if off > av {
         off = av;
     }
