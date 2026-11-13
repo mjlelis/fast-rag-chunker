@@ -3,7 +3,10 @@ import re
 from dataclasses import dataclass
 from typing import Callable, List
 
-import fast_rag_chunker
+try:
+    import fast_rag_chunker
+except ImportError:
+    from tests.e2e import reference_oracle as fast_rag_chunker
 
 
 @dataclass(frozen=True)

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-13
+
+### Breaking Changes & Migration Guide (v0.2.0 to v0.3.0)
+- **Mode Taxonomy & Deprecations (`R3.11`):** Canonical mode name is now `boundary` (Rust `ChunkingMode::Boundary`, Python `mode="boundary"`). Specifying `mode="semantic"` or `semantic_snap=True|False` continues to function for backward compatibility but now emits a `DeprecationWarning` scheduled for removal in `v1.0.0`.
+  ```python
+  # v0.2.0 (deprecated):
+  cfg = ChunkerConfig(min_chunk=64, avg_chunk=256, max_chunk=512, mode="semantic")
+
+  # v0.3.0 (canonical):
+  cfg = ChunkerConfig(min_chunk=64, avg_chunk=256, max_chunk=512, mode="boundary")
+  ```
+- **New `ChunkResult` Structural Fields (`R3.7`, `R3.8`):** `ChunkResult` (and Rust `Chunk`) now contains `ordinal: int`, `heading_path: list[str]`, `context_before: str`, and `context_after: str`.
+- **Pre-Hash Normalization (`R3.6`):** Configurable `normalize="none" | "whitespace" | "nfc"` normalizes bytes prior to computing 128-bit BLAKE3 digests while preserving exact offsets and lengths into the un-normalized input document.
+
+### Added
+- **Multi-Tier Priority Boundary Model (`R3.1`):** Replaced naive lookahead with a prioritized semantic snapping hierarchy: Markdown Headings (Tier 1) > Paragraph Breaks / Blank Lines (Tier 2) > UAX #29 Sentence Boundaries (Tier 3) > Unicode Word Boundaries (Tier 4) > UTF-8 Codepoint Fallback (Tier 5), preserving FastCDC's Gear-hash local content property and deduplication resilience.
+- **Hardened Unicode UAX #29 Sentence Segmentation (`R3.2`):** Integrated standard Unicode sentence boundary detection protected against false splits on English (e.g. `mr`, `dr`, `prof`, `e.g.`, `approx`) and Portuguese (e.g. `art`, `arts`, `dr`, `dra`, `pág`, `págs`, `inc`) legal and technical abbreviations, with native support for full-width CJK sentence terminators (`。`, `！`, `？`, `…`) and Unicode whitespace categories.
+- **Configurable & Adaptive Snap Window (`R3.3`):** Added `snap_window` parameter in `ChunkerConfig` with an adaptive default proportional to `avg_chunk` (`clamp(round(0.15 * avg_chunk), 32, (max - min) / 2)`).
+- **Zero-Microchunk Tail Handling (`R3.4`):** Guaranteed no trailing chunks smaller than `min_chunk` by merging remainders into the preceding chunk when `combined <= max_chunk`, or redistributing at a balanced midpoint when `combined > max_chunk`.
+- **Dual Size Units & Token Upper-Bound Guarantees (`R3.5`):** Supported `size_unit="bytes"` and `size_unit="tokens"` with strict enforcement that chunk length never exceeds `max_chunk` units, preventing context overflow in downstream embedding models.
+- **Pre-Hash Normalization (`R3.6`):** Supported `normalize="none"`, `"whitespace"` (collapsing consecutive spaces/tabs/newlines), and `"nfc"` (Unicode Normalization Form C) before computing 128-bit BLAKE3 digests, providing format-invariant cache hits across subtle text changes.
+- **Hierarchical Document Metadata (`R3.7`):** Attached `heading_path` (stack of active Markdown section headers) and 0-based `ordinal` indices to every emitted chunk.
+- **Surrounding Sentence Context Windows (`R3.8`):** Added `context_before` and `context_after` sentence capture to provide contextual cues to downstream LLM rankers and dense embedders, with support in `cache_key(chunk, model_id, config, with_context=True)`.
+- **$O(N + M)$ Vector Database Diffing (`R3.9`):** Added `diff_chunks(old_chunks, new_chunks)` returning `(to_embed, to_delete, to_metadata_update)` for vector store lifecycle synchronization.
+- **Haystack 2.x Retrieval Evaluation Harness (`R3.10`):** Added `bench/retrieval/` implementing an evaluation pipeline with `InMemoryDocumentStore` and `InMemoryBM25Retriever` over 50 bilingual technical and legal queries (`bench/retrieval/data/queries.json` and `qrels.json`), measuring Recall@5, Recall@10, nDCG@10, and MRR across all 6 baseline chunkers and reporting in `results/retrieval.json`.
+- **C ABI v3 Entry Point:** Added `rust_chunk_buffer_v3` and `ChunkBoundaryV3` in `c_legacy/chunker.h`, `include/chunker.h`, and `src/ffi_boundary.rs`, exposing boundary mode, snap window, normalization, size unit, and ordinal index with 100% backward compatibility for v1 and v2 callers.
+
 ## [0.2.0] - 2026-11-10
 
 ### Breaking Changes & Migration Guide

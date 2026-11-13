@@ -1,0 +1,702 @@
+{
+  "q_en_01_1": {
+    "doc_id": "en_01_rolling_hash_rev_new.md",
+    "anchor": "A rolling hash (also known as recursive hashing or rolling checksum) is a hash function where the input is hashed in a window that moves through the input.",
+    "full_anchor": "A rolling hash (also known as recursive hashing or rolling checksum) is a hash function where the input is hashed in a window that moves through the input.",
+    "key_terms": [
+      "what",
+      "rolling",
+      "hash",
+      "does",
+      "sliding"
+    ],
+    "start_char": 0,
+    "end_char": 155
+  },
+  "q_en_01_2": {
+    "doc_id": "en_01_rolling_hash_rev_new.md",
+    "anchor": "One of the main applications is the Rabin–Karp string search algorithm, which uses the rolling hash described below. Another popular application is the rsync program, which uses a checksum based on Ma",
+    "full_anchor": "One of the main applications is the Rabin–Karp string search algorithm, which uses the rolling hash described below. Another popular application is the rsync program, which uses a checksum based on Mark Adler's adler-32 as its rolling hash. Low Bandwidth Network Filesystem (LBFS) uses a Rabin fingerprint as its rolling hash. FastCDC (Fast Content-Defined Chunking) uses a compute-efficient Gear fingerprint as its rolling hash.",
+    "key_terms": [
+      "rolling",
+      "hash",
+      "used",
+      "rabin",
+      "karp"
+    ],
+    "start_char": 571,
+    "end_char": 1000
+  },
+  "q_en_02_1": {
+    "doc_id": "en_02_retrieval_augmented_generation_rev_new.md",
+    "anchor": "Retrieval-augmented generation (RAG) is a technique that enables large language models (LLMs) to retrieve and incorporate new information from external data sources. With RAG, LLMs first refer to a sp",
+    "full_anchor": "Retrieval-augmented generation (RAG) is a technique that enables large language models (LLMs) to retrieve and incorporate new information from external data sources. With RAG, LLMs first refer to a specified set of documents, then respond to user queries. These documents supplement information from the LLM's pre-existing training data.",
+    "key_terms": [
+      "does",
+      "retrieval",
+      "augmented",
+      "generation",
+      "augment"
+    ],
+    "start_char": 0,
+    "end_char": 337
+  },
+  "q_en_02_2": {
+    "doc_id": "en_02_retrieval_augmented_generation_rev_new.md",
+    "anchor": "### Encoder\nThese methods focus on the encoding of text as either dense or sparse vectors. Sparse vectors, which encode the identity of a word, are typically dictionary-length and contain mostly zeros",
+    "full_anchor": "### Encoder\nThese methods focus on the encoding of text as either dense or sparse vectors. Sparse vectors, which encode the identity of a word, are typically dictionary-length and contain mostly zeros. Dense vectors, which encode meaning, are more compact and contain fewer zeros. Various enhancements can improve the way similarities are calculated in the vector stores (databases).",
+    "key_terms": [
+      "what",
+      "distinction",
+      "between",
+      "dense",
+      "sparse"
+    ],
+    "start_char": 1099,
+    "end_char": 1482
+  },
+  "q_en_03_1": {
+    "doc_id": "en_03_cryptographic_hash_function_rev_new.md",
+    "anchor": "A cryptographic hash function (CHF) is a hash algorithm (a map of an arbitrary binary string to a binary string with a fixed size of <math>n</math> bits) that has special properties desirable for cryp",
+    "full_anchor": "A cryptographic hash function (CHF) is a hash algorithm (a map of an arbitrary binary string to a binary string with a fixed size of <math>n</math> bits) that has special properties desirable for cryptographic applications.",
+    "key_terms": [
+      "what",
+      "security",
+      "properties",
+      "define",
+      "ideal"
+    ],
+    "start_char": 210,
+    "end_char": 433
+  },
+  "q_en_03_2": {
+    "doc_id": "en_03_cryptographic_hash_function_rev_new.md",
+    "anchor": "In practice, collision resistance is insufficient for many practical uses. In addition to collision resistance, it should be impossible for an adversary to find two messages with substantially similar",
+    "full_anchor": "In practice, collision resistance is insufficient for many practical uses. In addition to collision resistance, it should be impossible for an adversary to find two messages with substantially similar digests; or to infer any useful information about the data, given only its digest. In particular, a hash function should behave as much as possible like a random function (often called a random oracle in proofs of security) while still being deterministic and efficiently computable. This rules out functions like the SWIFFT function, which can be rigorously proven to be collision-resistant assuming that certain problems on ideal lattices are computationally difficult, but, as a linear function, does not satisfy these additional properties.",
+    "key_terms": [
+      "collision",
+      "resistance",
+      "crucial",
+      "cryptographic",
+      "hash"
+    ],
+    "start_char": 3910,
+    "end_char": 4655
+  },
+  "q_en_04_1": {
+    "doc_id": "en_04_distributed_hash_table_rev_new.md",
+    "anchor": "A distributed hash table (DHT) is a distributed system that provides a lookup service similar to a hash table. Key–value pairs are stored in a DHT, and any participating node can efficiently retrieve ",
+    "full_anchor": "A distributed hash table (DHT) is a distributed system that provides a lookup service similar to a hash table. Key–value pairs are stored in a DHT, and any participating node can efficiently retrieve the value associated with a given key. The main advantage of a DHT is that nodes can be added or removed with minimum work around re-distributing keys. Keys are unique identifiers which map to particular values, which in turn can be anything from addresses, to documents, to arbitrary data. Responsibility for maintaining the mapping from keys to values is distributed among the nodes, in such a way that a change in the set of participants causes a minimal amount of disruption. This allows a DHT to scale to extremely large numbers of nodes and to handle continual node arrivals, departures, and failures.",
+    "key_terms": [
+      "what",
+      "service",
+      "does",
+      "distributed",
+      "hash"
+    ],
+    "start_char": 0,
+    "end_char": 807
+  },
+  "q_en_04_2": {
+    "doc_id": "en_04_distributed_hash_table_rev_new.md",
+    "anchor": "Distributed hash tables use a more structured key-based routing in order to attain both the decentralization of Freenet and Gnutella, and the efficiency and guaranteed results of Napster. One drawback",
+    "full_anchor": "Distributed hash tables use a more structured key-based routing in order to attain both the decentralization of Freenet and Gnutella, and the efficiency and guaranteed results of Napster. One drawback is that, like Freenet, DHTs only directly support exact-match search, rather than keyword search, although Freenet's routing algorithm can be generalized to any key type where a closeness operation can be defined.",
+    "key_terms": [
+      "distributed",
+      "hash",
+      "tables",
+      "achieve",
+      "structured"
+    ],
+    "start_char": 2833,
+    "end_char": 3247
+  },
+  "q_en_05_1": {
+    "doc_id": "en_05_b_tree_rev_new.md",
+    "anchor": "In computer science, a B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. The B-tree gener",
+    "full_anchor": "In computer science, a B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. The B-tree generalizes the binary search tree, allowing nodes to have more than two children.",
+    "key_terms": [
+      "what",
+      "logarithmic",
+      "time",
+      "complexity",
+      "properties"
+    ],
+    "start_char": 0,
+    "end_char": 277
+  },
+  "q_en_05_2": {
+    "doc_id": "en_05_b_tree_rev_new.md",
+    "anchor": "The keys of each non-leaf node act as separation values that divide its subtrees. For example, if an internal node has 3 child nodes (or subtrees), then it must have 2 keys: a<sub>1</sub> and a<sub>2<",
+    "full_anchor": "The keys of each non-leaf node act as separation values that divide its subtrees. For example, if an internal node has 3 child nodes (or subtrees), then it must have 2 keys: a<sub>1</sub> and a<sub>2</sub>. All values in the leftmost subtree will be less than a<sub>1</sub>, all values in the middle subtree will be between a<sub>1</sub> and a<sub>2</sub>, and all values in the rightmost subtree will be greater than a<sub>2</sub>.",
+    "key_terms": [
+      "separation",
+      "values",
+      "internal",
+      "nodes",
+      "divide"
+    ],
+    "start_char": 2495,
+    "end_char": 2927
+  },
+  "q_en_06_1": {
+    "doc_id": "en_06_log_structured_merge_tree_rev_new.md",
+    "anchor": "In computer science, the log-structured merge-tree (also known as LSM tree, or LSMT) is a data structure with performance characteristics that make it attractive for providing indexed access to files ",
+    "full_anchor": "In computer science, the log-structured merge-tree (also known as LSM tree, or LSMT) is a data structure with performance characteristics that make it attractive for providing indexed access to files with high insert volume, such as transactional log data. LSM trees, like other search trees, maintain key-value pairs. LSM trees maintain data in two or more separate structures, each of which is optimized for its respective underlying storage medium; data is synchronized between the two structures efficiently, in batches.",
+    "key_terms": [
+      "structured",
+      "merge",
+      "trees",
+      "attractive",
+      "high"
+    ],
+    "start_char": 0,
+    "end_char": 524
+  },
+  "q_en_06_2": {
+    "doc_id": "en_06_log_structured_merge_tree_rev_new.md",
+    "anchor": "In computer science, the log-structured merge-tree (also known as LSM tree, or LSMT) is a data structure with performance characteristics that make it attractive for providing indexed access to files ",
+    "full_anchor": "In computer science, the log-structured merge-tree (also known as LSM tree, or LSMT) is a data structure with performance characteristics that make it attractive for providing indexed access to files with high insert volume, such as transactional log data. LSM trees, like other search trees, maintain key-value pairs. LSM trees maintain data in two or more separate structures, each of which is optimized for its respective underlying storage medium; data is synchronized between the two structures efficiently, in batches.",
+    "key_terms": [
+      "trees",
+      "balance",
+      "sequential",
+      "writes",
+      "against"
+    ],
+    "start_char": 0,
+    "end_char": 524
+  },
+  "q_en_07_1": {
+    "doc_id": "en_07_consensus_computer_science_rev_new.md",
+    "anchor": "A fundamental problem in distributed computing and multi-agent systems is to achieve overall system reliability in the presence of a number of faulty processes. This often requires coordinating proces",
+    "full_anchor": "A fundamental problem in distributed computing and multi-agent systems is to achieve overall system reliability in the presence of a number of faulty processes. This often requires coordinating processes to reach consensus, or agree on some data value that is needed during computation. Example applications of consensus include agreeing on what transactions to commit to a database in which order, state machine replication, and atomic broadcasts. Real-world applications often requiring consensus include cloud computing, clock synchronization, PageRank, opinion formation, smart power grids, state estimation, control of UAVs (and multiple robots/agents in general), load balancing, blockchain, and others.",
+    "key_terms": [
+      "what",
+      "fundamental",
+      "problem",
+      "does",
+      "consensus"
+    ],
+    "start_char": 0,
+    "end_char": 709
+  },
+  "q_en_07_2": {
+    "doc_id": "en_07_consensus_computer_science_rev_new.md",
+    "anchor": "### Crash and Byzantine failures",
+    "full_anchor": "### Crash and Byzantine failures",
+    "key_terms": [
+      "what",
+      "difference",
+      "between",
+      "crash",
+      "failures"
+    ],
+    "start_char": 4239,
+    "end_char": 4271
+  },
+  "q_en_08_1": {
+    "doc_id": "en_08_raft_algorithm_rev_new.md",
+    "anchor": "Raft achieves consensus via an elected leader. A server in a raft cluster is either a leader or a follower, and can be a candidate in the precise case of an election (leader unavailable). The leader i",
+    "full_anchor": "Raft achieves consensus via an elected leader. A server in a raft cluster is either a leader or a follower, and can be a candidate in the precise case of an election (leader unavailable). The leader is responsible for log replication to the followers. It regularly informs the followers of its existence by sending a heartbeat message. Each follower has a timeout (typically between 150 and 300 ms) in which it expects the heartbeat from the leader. The timeout is reset on receiving the heartbeat. If no heartbeat is received the follower changes its status to candidate and starts a leader election.",
+    "key_terms": [
+      "does",
+      "raft",
+      "achieve",
+      "consensus",
+      "elected"
+    ],
+    "start_char": 549,
+    "end_char": 1150
+  },
+  "q_en_08_2": {
+    "doc_id": "en_08_raft_algorithm_rev_new.md",
+    "anchor": "* Pre-Vote: when a member rejoins the cluster, it can depending on timing trigger an election although there is already a leader. To avoid this, pre-vote will first check in with the other members. Av",
+    "full_anchor": "* Pre-Vote: when a member rejoins the cluster, it can depending on timing trigger an election although there is already a leader. To avoid this, pre-vote will first check in with the other members. Avoiding the unnecessary election improves the availability of cluster, therefore this extension is usually present in production implementations.\n* Leadership transfer: a leader that is shutting down orderly can explicitly transfer the leadership to another member. This can be faster than waiting for a timeout. Also, a leader can step down when another member would be a better leader, for example when that member is on a faster machine.",
+    "key_terms": [
+      "what",
+      "purpose",
+      "does",
+      "vote",
+      "extension"
+    ],
+    "start_char": 2793,
+    "end_char": 3432
+  },
+  "q_en_09_1": {
+    "doc_id": "en_09_consistent_hashing_rev_new.md",
+    "anchor": "In computer science, consistent hashing In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped because the mapping between the keys a",
+    "full_anchor": "In computer science, consistent hashing In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped because the mapping between the keys and the slots is defined by a modular operation.",
+    "key_terms": [
+      "does",
+      "consistent",
+      "hashing",
+      "minimize",
+      "remapping"
+    ],
+    "start_char": 0,
+    "end_char": 247
+  },
+  "q_en_09_2": {
+    "doc_id": "en_09_consistent_hashing_rev_new.md",
+    "anchor": "In computer science, consistent hashing In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped because the mapping between the keys a",
+    "full_anchor": "In computer science, consistent hashing In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped because the mapping between the keys and the slots is defined by a modular operation.",
+    "key_terms": [
+      "does",
+      "consistent",
+      "hashing",
+      "distribute",
+      "keys"
+    ],
+    "start_char": 0,
+    "end_char": 247
+  },
+  "q_en_10_1": {
+    "doc_id": "en_10_bloom_filter_rev_new.md",
+    "anchor": "In computing, a Bloom filter is a space-efficient probabilistic data structure, conceived by Burton Howard Bloom in 1970, that is used to test whether an element is a member of a set. False positive m",
+    "full_anchor": "In computing, a Bloom filter is a space-efficient probabilistic data structure, conceived by Burton Howard Bloom in 1970, that is used to test whether an element is a member of a set. False positive matches are possible, but false negatives are not – in other words, a query returns either \"possibly in set\" or \"definitely not in set\". Elements can be added to the set, but not removed (though this can be addressed with the counting Bloom filter variant); the more items added, the larger the probability of false positives.",
+    "key_terms": [
+      "what",
+      "space",
+      "efficient",
+      "probabilistic",
+      "guarantees"
+    ],
+    "start_char": 0,
+    "end_char": 525
+  },
+  "q_en_11_1": {
+    "doc_id": "en_11_locality_sensitive_hashing_rev_new.md",
+    "anchor": "In computer science, locality-sensitive hashing (LSH) is a fuzzy hashing technique that hashes similar input items into the same \"buckets\" with high probability. The number of buckets is much smaller ",
+    "full_anchor": "In computer science, locality-sensitive hashing (LSH) is a fuzzy hashing technique that hashes similar input items into the same \"buckets\" with high probability. The number of buckets is much smaller than the universe of possible input items.",
+    "key_terms": [
+      "does",
+      "locality",
+      "sensitive",
+      "hashing",
+      "similar"
+    ],
+    "start_char": 0,
+    "end_char": 242
+  },
+  "q_en_12_1": {
+    "doc_id": "en_12_information_retrieval_rev_new.md",
+    "anchor": "In computing and information science, information retrieval (IR) is the task of identifying and retrieving information system resources that are relevant to an information need. The information need c",
+    "full_anchor": "In computing and information science, information retrieval (IR) is the task of identifying and retrieving information system resources that are relevant to an information need. The information need can be specified in the form of a search query. In the case of document retrieval, queries can be based on full-text or other content-based indexing. Information retrieval is the science of searching for information in a document, searching for documents themselves, and also searching for the metadata that describes data, and for databases of texts, images, or sounds. Cross-modal retrieval implies retrieval across modalities.",
+    "key_terms": [
+      "what",
+      "core",
+      "definition",
+      "objective",
+      "information"
+    ],
+    "start_char": 0,
+    "end_char": 628
+  },
+  "q_en_13_1": {
+    "doc_id": "en_13_tf_idf_rev_new.md",
+    "anchor": "In information retrieval, tf–idf (term frequency–inverse document frequency, TF*IDF, TFIDF, TF–IDF, or Tf–idf) is a measure of importance of a word to a document in a collection or corpus, adjusted fo",
+    "full_anchor": "In information retrieval, tf–idf (term frequency–inverse document frequency, TF*IDF, TFIDF, TF–IDF, or Tf–idf) is a measure of importance of a word to a document in a collection or corpus, adjusted for the fact that some words appear more frequently in general. Like the bag-of-words model, it models a document as a multiset of words, without word order. It is a refinement over the simple bag-of-words model, by allowing the weight of words to depend on the rest of the corpus.",
+    "key_terms": [
+      "does",
+      "measure",
+      "statistical",
+      "importance",
+      "words"
+    ],
+    "start_char": 0,
+    "end_char": 479
+  },
+  "q_en_14_1": {
+    "doc_id": "en_14_okapi_bm25_rev_new.md",
+    "anchor": "In information retrieval, Okapi BM25 (BM is an abbreviation of best matching) is a ranking function used by search engines to estimate the relevance of documents to a given search query. It is based o",
+    "full_anchor": "In information retrieval, Okapi BM25 (BM is an abbreviation of best matching) is a ranking function used by search engines to estimate the relevance of documents to a given search query. It is based on the probabilistic retrieval framework developed in the 1970s and 1980s by Stephen E. Robertson, Karen Spärck Jones, and others.",
+    "key_terms": [
+      "what",
+      "okapi",
+      "search",
+      "engines",
+      "document"
+    ],
+    "start_char": 0,
+    "end_char": 329
+  },
+  "q_en_15_1": {
+    "doc_id": "en_15_inverted_index_rev_new.md",
+    "anchor": "In information science, an inverted index (also referred to as a postings list, postings file, or inverted file) is a database index storing a mapping from content, such as words or numbers, to its lo",
+    "full_anchor": "In information science, an inverted index (also referred to as a postings list, postings file, or inverted file) is a database index storing a mapping from content, such as words or numbers, to its locations in a table, or in a document or a set of documents (named in contrast to a forward index, which maps from documents to content). The purpose of an inverted index is to allow fast full-text searches, at a cost of increased processing when a document is added to the database. The inverted file may be the database file itself, rather than its index. It is the most popular data structure used in document retrieval systems, used on a large scale for example in search engines. Additionally, several significant general-purpose mainframe-based database management systems have used inverted list architectures, including ADABAS, DATACOM/DB, and Model 204.",
+    "key_terms": [
+      "what",
+      "inverted",
+      "index",
+      "what",
+      "role"
+    ],
+    "start_char": 0,
+    "end_char": 861
+  },
+  "q_en_15_2": {
+    "doc_id": "en_15_inverted_index_rev_new.md",
+    "anchor": "In information science, an inverted index (also referred to as a postings list, postings file, or inverted file) is a database index storing a mapping from content, such as words or numbers, to its lo",
+    "full_anchor": "In information science, an inverted index (also referred to as a postings list, postings file, or inverted file) is a database index storing a mapping from content, such as words or numbers, to its locations in a table, or in a document or a set of documents (named in contrast to a forward index, which maps from documents to content). The purpose of an inverted index is to allow fast full-text searches, at a cost of increased processing when a document is added to the database. The inverted file may be the database file itself, rather than its index. It is the most popular data structure used in document retrieval systems, used on a large scale for example in search engines. Additionally, several significant general-purpose mainframe-based database management systems have used inverted list architectures, including ADABAS, DATACOM/DB, and Model 204.",
+    "key_terms": [
+      "search",
+      "engines",
+      "inverted",
+      "indices",
+      "fast"
+    ],
+    "start_char": 0,
+    "end_char": 861
+  },
+  "q_pt_01_1": {
+    "doc_id": "pt_01_tabela_de_dispers_o_rev_new.md",
+    "anchor": "Em ciência da computação, uma tabela de dispersão (também conhecida por tabela de espalhamento ou tabela hash, do inglês hash) é uma estrutura de dados especial, que associa chaves de pesquisa a valor",
+    "full_anchor": "Em ciência da computação, uma tabela de dispersão (também conhecida por tabela de espalhamento ou tabela hash, do inglês hash) é uma estrutura de dados especial, que associa chaves de pesquisa a valores. Seu objetivo é, a partir de uma chave simples, fazer uma busca rápida e obter o valor desejado. É algumas vezes traduzida como tabela de escrutínio.",
+    "key_terms": [
+      "tabela",
+      "dispersão",
+      "como",
+      "associa",
+      "chaves"
+    ],
+    "start_char": 0,
+    "end_char": 352
+  },
+  "q_pt_01_2": {
+    "doc_id": "pt_01_tabela_de_dispers_o_rev_new.md",
+    "anchor": "Em ciência da computação, uma tabela de dispersão (também conhecida por tabela de espalhamento ou tabela hash, do inglês hash) é uma estrutura de dados especial, que associa chaves de pesquisa a valor",
+    "full_anchor": "Em ciência da computação, uma tabela de dispersão (também conhecida por tabela de espalhamento ou tabela hash, do inglês hash) é uma estrutura de dados especial, que associa chaves de pesquisa a valores. Seu objetivo é, a partir de uma chave simples, fazer uma busca rápida e obter o valor desejado. É algumas vezes traduzida como tabela de escrutínio.",
+    "key_terms": [
+      "como",
+      "colisões",
+      "chaves",
+      "tratadas",
+      "tabela"
+    ],
+    "start_char": 0,
+    "end_char": 352
+  },
+  "q_pt_02_1": {
+    "doc_id": "pt_02_fun_o_hash_criptogr_fica_rev_new.md",
+    "anchor": "## Propriedades",
+    "full_anchor": "## Propriedades",
+    "key_terms": [
+      "quais",
+      "propriedades",
+      "fundamentais",
+      "segurança",
+      "função"
+    ],
+    "start_char": 1729,
+    "end_char": 1744
+  },
+  "q_pt_02_2": {
+    "doc_id": "pt_02_fun_o_hash_criptogr_fica_rev_new.md",
+    "anchor": "Uma função de dispersão criptográfica ou função hash criptográfica é uma função hash considerada praticamente impossível de inverter, isto é, de recriar o valor de entrada utilizando somente o valor d",
+    "full_anchor": "Uma função de dispersão criptográfica ou função hash criptográfica é uma função hash considerada praticamente impossível de inverter, isto é, de recriar o valor de entrada utilizando somente o valor de dispersão. Essas funções hash unidirecionais têm sido chamadas de \"os operários da criptografia moderna\". Os dados de entrada costumam ser chamados de mensagem, e o valor de dispersão mensagem resumida ou simplesmente resumo.",
+    "key_terms": [
+      "como",
+      "efeito",
+      "avalanche",
+      "atua",
+      "alteração"
+    ],
+    "start_char": 229,
+    "end_char": 656
+  },
+  "q_pt_03_1": {
+    "doc_id": "pt_03_rvore_b_rev_new.md",
+    "anchor": "Em ciência da computação, uma árvore B é uma estrutura de dados em árvore, auto-balanceada, que armazena dados classificados e permite pesquisas, acesso sequencial, inserções e remoções em tempo logar",
+    "full_anchor": "Em ciência da computação, uma árvore B é uma estrutura de dados em árvore, auto-balanceada, que armazena dados classificados e permite pesquisas, acesso sequencial, inserções e remoções em tempo logarítmico. A árvore B é uma generalização de uma árvore de pesquisa binária em que um nó pode ter mais que dois filhos. Diferente das árvores de pesquisa binária auto-balanceadas, a árvore B é bem adaptada para sistemas de armazenamento que leem e escrevem blocos de dados relativamente grandes, como discos.",
+    "key_terms": [
+      "árvore",
+      "como",
+      "garante",
+      "pesquisas",
+      "tempo"
+    ],
+    "start_char": 41,
+    "end_char": 546
+  },
+  "q_pt_03_2": {
+    "doc_id": "pt_03_rvore_b_rev_new.md",
+    "anchor": "Em ciência da computação, uma árvore B é uma estrutura de dados em árvore, auto-balanceada, que armazena dados classificados e permite pesquisas, acesso sequencial, inserções e remoções em tempo logar",
+    "full_anchor": "Em ciência da computação, uma árvore B é uma estrutura de dados em árvore, auto-balanceada, que armazena dados classificados e permite pesquisas, acesso sequencial, inserções e remoções em tempo logarítmico. A árvore B é uma generalização de uma árvore de pesquisa binária em que um nó pode ter mais que dois filhos. Diferente das árvores de pesquisa binária auto-balanceadas, a árvore B é bem adaptada para sistemas de armazenamento que leem e escrevem blocos de dados relativamente grandes, como discos.",
+    "key_terms": [
+      "árvores",
+      "recomendadas",
+      "para",
+      "bancos",
+      "dados"
+    ],
+    "start_char": 41,
+    "end_char": 546
+  },
+  "q_pt_04_1": {
+    "doc_id": "pt_04_sistema_de_processamento_distrib_rev_new.md",
+    "anchor": "Um sistema de processamento distribuído ou paralelo é um sistema que interliga vários nós de processamento (computadores individuais, não necessariamente homogéneos) de maneira que um processo de gran",
+    "full_anchor": "Um sistema de processamento distribuído ou paralelo é um sistema que interliga vários nós de processamento (computadores individuais, não necessariamente homogéneos) de maneira que um processo de grande consumo seja executado no nó \"mais disponível\", ou mesmo subdividido por vários nós. Conseguindo-se, portanto, ganhos óbvios nestas soluções: uma tarefa qualquer, se divisível em várias subtarefas pode ser realizada em paralelo.",
+    "key_terms": [
+      "como",
+      "funciona",
+      "sistema",
+      "processamento",
+      "distribuído"
+    ],
+    "start_char": 62,
+    "end_char": 493
+  },
+  "q_pt_04_2": {
+    "doc_id": "pt_04_sistema_de_processamento_distrib_rev_new.md",
+    "anchor": "Um sistema de processamento distribuído ou paralelo é um sistema que interliga vários nós de processamento (computadores individuais, não necessariamente homogéneos) de maneira que um processo de gran",
+    "full_anchor": "Um sistema de processamento distribuído ou paralelo é um sistema que interliga vários nós de processamento (computadores individuais, não necessariamente homogéneos) de maneira que um processo de grande consumo seja executado no nó \"mais disponível\", ou mesmo subdividido por vários nós. Conseguindo-se, portanto, ganhos óbvios nestas soluções: uma tarefa qualquer, se divisível em várias subtarefas pode ser realizada em paralelo.",
+    "key_terms": [
+      "quais",
+      "vantagens",
+      "tolerância",
+      "falhas",
+      "desempenho"
+    ],
+    "start_char": 62,
+    "end_char": 493
+  },
+  "q_pt_05_1": {
+    "doc_id": "pt_05_processamento_de_linguagem_natur_rev_new.md",
+    "anchor": "miniaturadaimagem|Um assistente virtual automático que faz atendimento ao consumidor na internet, um exemplo onde há aplicação do processamento de língua natural.\nProcessamento de língua natural (PLN)",
+    "full_anchor": "miniaturadaimagem|Um assistente virtual automático que faz atendimento ao consumidor na internet, um exemplo onde há aplicação do processamento de língua natural.\nProcessamento de língua natural (PLN) é uma subárea da ciência da computação, inteligência artificial e da linguística que estuda os problemas da geração e compreensão automática de línguas humanas naturais. Sistemas de geração de língua natural convertem informação de bancos de dados de computadores em linguagem compreensível ao ser humano e sistemas de compreensão de língua natural convertem ocorrências de linguagem humana em representações mais formais, mais facilmente manipuláveis por programas de computador. Alguns desafios do PLN são compreensão de língua natural, fazer com que computadores extraiam sentido de linguagem humana ou natural e geração de língua natural.",
+    "key_terms": [
+      "estuda",
+      "campo",
+      "processamento",
+      "linguagem",
+      "natural"
+    ],
+    "start_char": 0,
+    "end_char": 843
+  },
+  "q_pt_05_2": {
+    "doc_id": "pt_05_processamento_de_linguagem_natur_rev_new.md",
+    "anchor": "## Usando a aprendizagem automática (aprendizado de máquina)\nOs algoritmos modernos de PLN baseiam-se na aprendizagem mecânica, especialmente na aprendizagem de máquinas estatísticas. O paradigma da a",
+    "full_anchor": "## Usando a aprendizagem automática (aprendizado de máquina)\nOs algoritmos modernos de PLN baseiam-se na aprendizagem mecânica, especialmente na aprendizagem de máquinas estatísticas. O paradigma da aprendizagem mecânica é diferente do da maioria das tentativas anteriores de processamento da linguagem. Anteriormente, implementações de tarefas de processamento de linguagem envolviam a codificação direta de grandes conjuntos de regras. O paradigma da aprendizagem automática (ou aprendizagem automática) induz a aprendizagem automática de regras através de análises de corpora de exemplos típicos do mundo real ao invés de usar algoritmos gerais de aprendizagem (muitas vezes, embora nem sempre, baseados em inferência estatística). Um corpus (plural \"corpora\") é um conjunto de documentos (ou frases individuais) que foram anotados à mão com os valores corretos a serem aprendidos.",
+    "key_terms": [
+      "como",
+      "algoritmos",
+      "aprendizagem",
+      "mecânica",
+      "aplicados"
+    ],
+    "start_char": 5829,
+    "end_char": 6713
+  },
+  "q_pt_06_1": {
+    "doc_id": "pt_06_aprendizado_de_m_quina_rev_new.md",
+    "anchor": "ou também aprendizado/aprendizagem de máquina () é um subcampo da Engenharia e da ciência da computação que evoluiu do estudo de reconhecimento de padrões e da teoria do aprendizado computacional em i",
+    "full_anchor": "ou também aprendizado/aprendizagem de máquina () é um subcampo da Engenharia e da ciência da computação que evoluiu do estudo de reconhecimento de padrões e da teoria do aprendizado computacional em inteligência artificial. Em 1959, Arthur Samuel definiu aprendizado de máquina como o \"campo de estudo que dá aos computadores a habilidade de aprender sem serem explicitamente programados\"(livre tradução).  O aprendizado automático explora o estudo e construção de algoritmos que podem aprender de seus erros e fazer previsões sobre dados. Tais algoritmos operam construindo um modelo a partir de inputs amostrais a fim de fazer previsões ou decisões guiadas pelos dados ao invés de simplesmente seguindo inflexíveis e estáticas instruções programadas. Enquanto que na inteligência artificial existem dois tipos de raciocínio (o indutivo, que extrai regras e padrões de grandes conjuntos de dados, e o dedutivo), o aprendizado de máquina só se preocupa com o indutivo.",
+    "key_terms": [
+      "estuda",
+      "área",
+      "aprendizado",
+      "máquina",
+      "ciência"
+    ],
+    "start_char": 0,
+    "end_char": 968
+  },
+  "q_pt_06_2": {
+    "doc_id": "pt_06_aprendizado_de_m_quina_rev_new.md",
+    "anchor": "### Tipos de problemas e tarefas\nAs tarefas de aprendizado de máquina são tipicamente classificadas em três categorias amplas, de acordo com a natureza do \"sinal\" ou \"feedback\" de aprendizado disponív",
+    "full_anchor": "### Tipos de problemas e tarefas\nAs tarefas de aprendizado de máquina são tipicamente classificadas em três categorias amplas, de acordo com a natureza do \"sinal\" ou \"feedback\" de aprendizado disponível para um sistema de aprendizado. Essas categorias são:\n* Aprendizado supervisionado: São apresentadas ao computador exemplos de entradas e saídas desejadas, fornecidas por um \"professor\". O objetivo é aprender uma regra geral que mapeia as entradas para as saídas.\n* Aprendizado não supervisionado: Nenhum tipo de etiqueta é dado ao algoritmo de aprendizado, deixando-o sozinho para encontrar estrutura nas entradas fornecidas. O aprendizado não supervisionado pode ser um objetivo em si mesmo (descobrir novos padrões nos dados) ou um meio para atingir um fim.\n* Aprendizado por reforço: Um programa de computador interage com um ambiente dinâmico, em que o programa deve desempenhar determinado objetivo (por exemplo, dirigir um veículo). É fornecido, ao programa, feedback quanto a premiações e punições, na medida em que é navegado o espaço do problema. Outro exemplo de aprendizado por reforço é aprender a jogar um determinado jogo apenas jogando contra um oponente.\nEntre o aprendizado supervisionado e o não supervisionado, está o aprendizado semi-supervisionado, em que o professor fornece um sinal de treinamento incompleto: um conjunto de dados de treinamento com algumas (muitas vezes várias) das saídas desejadas ausentes. A transdução é um caso especial deste princípio, em que o conjunto inteiro das instâncias do problema é conhecido no momento do aprendizado, mas com parte dos objetivos ausente.",
+    "key_terms": [
+      "qual",
+      "diferença",
+      "entre",
+      "aprendizado",
+      "supervisionado"
+    ],
+    "start_char": 3514,
+    "end_char": 5129
+  },
+  "q_pt_07_1": {
+    "doc_id": "pt_07_intelig_ncia_artificial_rev_new.md",
+    "anchor": "Inteligência artificial (frequentemente abreviada por IA ou AI, do inglês artificial intelligence) é, de forma genérica, a capacidade de máquinas demonstrarem inteligência, raciocínio e aprendizado de",
+    "full_anchor": "Inteligência artificial (frequentemente abreviada por IA ou AI, do inglês artificial intelligence) é, de forma genérica, a capacidade de máquinas demonstrarem inteligência, raciocínio e aprendizado de forma semelhante ao pensamento humano. O campo busca desenvolver máquinas autónomas ou sistemas especialistas capazes de simular o comportamento humano e realizar tarefas complexas de forma independente. Trata-se de um sistema que permite aos computadores executar funções avançadas, como a análise de dados em grande escala e a formulação de previsões ou recomendações. Como campo de pesquisa na ciência da computação, dedica-se ao estudo e desenvolvimento de métodos e softwares que capacitam as máquinas a perceberem o seu ambiente e a utilizarem o aprendizado para tomar ações que maximizem as hipóteses de atingir objetivos definidos.",
+    "key_terms": [
+      "qual",
+      "definição",
+      "geral",
+      "inteligência",
+      "artificial"
+    ],
+    "start_char": 0,
+    "end_char": 840
+  },
+  "q_pt_08_1": {
+    "doc_id": "pt_08_banco_de_dados_relacional_rev_new.md",
+    "anchor": "Um banco de dados relacional é um banco de dados que modela os dados de uma forma que eles sejam percebidos pelo usuário como tabelas, ou mais formalmente relações.",
+    "full_anchor": "Um banco de dados relacional é um banco de dados que modela os dados de uma forma que eles sejam percebidos pelo usuário como tabelas, ou mais formalmente relações.",
+    "key_terms": [
+      "como",
+      "modelo",
+      "relacional",
+      "organiza",
+      "informações"
+    ],
+    "start_char": 0,
+    "end_char": 164
+  },
+  "q_pt_08_2": {
+    "doc_id": "pt_08_banco_de_dados_relacional_rev_new.md",
+    "anchor": "Por meio das chaves estrangeiras, é possível implementar restrições nos SGBDR.",
+    "full_anchor": "Por meio das chaves estrangeiras, é possível implementar restrições nos SGBDR.",
+    "key_terms": [
+      "qual",
+      "função",
+      "chave",
+      "estrangeira",
+      "implementação"
+    ],
+    "start_char": 9964,
+    "end_char": 10042
+  },
+  "q_pt_09_1": {
+    "doc_id": "pt_09_compilador_rev_new.md",
+    "anchor": "Um compilador é um programa de computador (ou um grupo de programas) que, a partir de um código fonte escrito em uma linguagem compilada, cria um programa semanticamente equivalente, porém escrito em ",
+    "full_anchor": "Um compilador é um programa de computador (ou um grupo de programas) que, a partir de um código fonte escrito em uma linguagem compilada, cria um programa semanticamente equivalente, porém escrito em outra linguagem, código objeto. Classicamente, um compilador traduz um programa de uma linguagem textual\nfacilmente entendida por um ser humano para uma linguagem de máquina ,\nespecífica para um processador e sistema operacional. Atualmente, porém,\nsão comuns compiladores que geram código para uma máquina virtual que\né, depois, interpretada por um interpretador. Ele é chamado compilador por razões históricas; nos primeiros anos da programação automática, existiam programas que percorriam bibliotecas de sub-rotinas e as reunia, ou compilava, as subrotinas necessárias para executar uma determinada tarefa.",
+    "key_terms": [
+      "compilador",
+      "processar",
+      "código",
+      "fonte",
+      "linguagens"
+    ],
+    "start_char": 181,
+    "end_char": 991
+  },
+  "q_pt_09_2": {
+    "doc_id": "pt_09_compilador_rev_new.md",
+    "anchor": "A análise léxica é a primeira fase do compilador. A função do analisador léxico, também denominado scanner, é ler o código-fonte, caractere a caractere, buscando a separação e identificação dos elemen",
+    "full_anchor": "A análise léxica é a primeira fase do compilador. A função do analisador léxico, também denominado scanner, é ler o código-fonte, caractere a caractere, buscando a separação e identificação dos elementos componentes do programa-fonte, denominados símbolos léxicos ou tokens. É também de responsabilidade desta fase a eliminação de elementos \"decorativos\" do programa, tais como espaços em branco, marcas de formatação de texto e comentários. Existem disponíveis uma série de geradores automáticos de analisadores léxicos, como por exemplo, o lex. O objetivo dos geradores automáticos é limitar o esforço de programação de um analisador léxico especificando-se apenas os tokens a ser reconhecidos.",
+    "key_terms": [
+      "qual",
+      "atribuição",
+      "analisador",
+      "léxico",
+      "durante"
+    ],
+    "start_char": 5482,
+    "end_char": 6178
+  },
+  "q_pt_10_1": {
+    "doc_id": "pt_10_sistema_operativo_rev_new.md",
+    "anchor": "é um software que gerencia os recursos de um dispositivo, como a memória e o processamento, permite a execução de programas e aplicativos, define qual programa recebe atenção do processador, cria um s",
+    "full_anchor": "é um software que gerencia os recursos de um dispositivo, como a memória e o processamento, permite a execução de programas e aplicativos, define qual programa recebe atenção do processador, cria um sistema de arquivos, e fornece uma interface entre o computador e o . Embora possa ser executado imediatamente após a máquina ser ligada, a maioria dos computadores pessoais de hoje o executa através de outro programa armazenado em uma memória não-volátil ROM chamado BIOS num processo chamado \"bootstrapping\", conceito em inglês usado para designar processos autossustentáveis, ou seja, capazes de prosseguirem sem ajuda externa. Após executar testes e iniciar os componentes da máquina (monitores, discos, etc), o BIOS procura pelo sistema operacional em alguma unidade de armazenamento, geralmente o Disco Rígido, e a partir daí, o sistema operacional \"toma\" o controle da máquina. O sistema operacional reveza sua execução com a de outros programas, como se estivesse vigiando, controlando e orquestrando todo o processo computacional.",
+    "key_terms": [
+      "como",
+      "sistema",
+      "operacional",
+      "gerencia",
+      "memória"
+    ],
+    "start_char": 0,
+    "end_char": 1038
+  },
+  "q_pt_11_1": {
+    "doc_id": "pt_11_mem_ria_virtual_rev_new.md",
+    "anchor": "Na paginação a memória física é dividida em blocos de bytes contíguos denominados molduras de páginas (page frames), geralmente com tamanho de 4 KiB (arquiteturas x86 e x86-64) ou 8 KiB (arquiteturas ",
+    "full_anchor": "Na paginação a memória física é dividida em blocos de bytes contíguos denominados molduras de páginas (page frames), geralmente com tamanho de 4 KiB (arquiteturas x86 e x86-64) ou 8 KiB (arquiteturas RISC) de tamanho. Por sua vez, o espaço de memória de um processo (contendo as instruções e dados do programa) é dividido em páginas que são fisicamente armazenadas nas molduras e possuem o mesmo tamanho destas.",
+    "key_terms": [
+      "como",
+      "memória",
+      "física",
+      "dividida",
+      "molduras"
+    ],
+    "start_char": 3312,
+    "end_char": 3723
+  },
+  "q_pt_11_2": {
+    "doc_id": "pt_11_mem_ria_virtual_rev_new.md",
+    "anchor": "O endereço virtual é encaminhado para a unidade de gerenciamento de memória (MMU - Memory Management Unit), um dispositivo do processador, cuja função é transformar o endereço virtual em físico e soli",
+    "full_anchor": "O endereço virtual é encaminhado para a unidade de gerenciamento de memória (MMU - Memory Management Unit), um dispositivo do processador, cuja função é transformar o endereço virtual em físico e solicitar este último endereço ao controlador de memória. A conversão de endereços virtuais em físicos baseia-se em tabelas de páginas, que são estruturas de dados mantidas pelo sistema operativo. Este espaço é dividido em dois: o espaço do núcleo (kernel space) e o espaço do usuário (user space). O primeiro é único e protegido das aplicações comuns, e armazena, além do próprio código do núcleo, uma estrutura que descreve toda a memória física; este espaço é limitado a um gigabyte (1024 MB). Cada aplicação recebe um espaço de endereçamento de até 3 GiB para armazenar o código e os dados do programa.",
+    "key_terms": [
+      "qual",
+      "papel",
+      "dispositivo",
+      "tradução",
+      "entre"
+    ],
+    "start_char": 4407,
+    "end_char": 5209
+  },
+  "q_pt_12_1": {
+    "doc_id": "pt_12_escalonamento_de_processos_rev_new.md",
+    "anchor": "O escalonamento de processos ou agendador de tarefas (em inglês scheduling) é uma atividade organizacional feita pelo escalonador (scheduler) da CPU ou de um sistema distribuído, possibilitando execut",
+    "full_anchor": "O escalonamento de processos ou agendador de tarefas (em inglês scheduling) é uma atividade organizacional feita pelo escalonador (scheduler) da CPU ou de um sistema distribuído, possibilitando executar os processos mais viáveis e concorrentes, priorizando determinados tipos de processos, como os de I/O Bound e os CPU Bound.",
+    "key_terms": [
+      "qual",
+      "função",
+      "escalonador",
+      "processos",
+      "gerenciamento"
+    ],
+    "start_char": 0,
+    "end_char": 326
+  },
+  "q_pt_13_1": {
+    "doc_id": "pt_13_protocolo_de_controle_de_transmi_rev_new.md",
+    "anchor": "Protocolo de Controle de Transmissão (do inglês: Transmission Control Protocol, abreviado TCP) é um dos protocolos de comunicação, da camada de transporte da rede de computadores do Modelo OSI, que dã",
+    "full_anchor": "Protocolo de Controle de Transmissão (do inglês: Transmission Control Protocol, abreviado TCP) é um dos protocolos de comunicação, da camada de transporte da rede de computadores do Modelo OSI, que dão suporte a rede global Internet, verificando se os dados são enviados na sequência correta e sem erros via rede. É complementado pelo protocolo da Internet, normalmente chamado de, TCP/IP.",
+    "key_terms": [
+      "como",
+      "protocolo",
+      "fornece",
+      "entrega",
+      "ordenada"
+    ],
+    "start_char": 0,
+    "end_char": 389
+  },
+  "q_pt_14_1": {
+    "doc_id": "pt_14_criptografia_de_chave_p_blica_rev_new.md",
+    "anchor": "Criptografia de chave pública, também conhecida como criptografia assimétrica, é qualquer sistema criptográfico que usa pares de chaves: chaves públicas, que podem ser amplamente disseminadas, e chave",
+    "full_anchor": "Criptografia de chave pública, também conhecida como criptografia assimétrica, é qualquer sistema criptográfico que usa pares de chaves: chaves públicas, que podem ser amplamente disseminadas, e chaves privadas que são conhecidas apenas pelo proprietário. Isto realiza duas funções: autenticação, onde a chave pública verifica que um portador da chave privada parelhada enviou a mensagem, e encriptação, onde apenas o portador da chave privada parelhada pode decriptar a mensagem encriptada com a chave pública.",
+    "key_terms": [
+      "como",
+      "divisão",
+      "entre",
+      "chave",
+      "pública"
+    ],
+    "start_char": 798,
+    "end_char": 1309
+  },
+  "q_pt_15_1": {
+    "doc_id": "pt_15_lei_geral_de_prote_o_de_dados_pe_rev_new.md",
+    "anchor": "A Lei Geral de Proteção de Dados Pessoais (com sigla LGPD ou LGPDP), ou Lei nº 13.709/2018, é uma lei federal brasileira promulgada em 2018, que estabelece normas para a proteção e tratamento de dados",
+    "full_anchor": "A Lei Geral de Proteção de Dados Pessoais (com sigla LGPD ou LGPDP), ou Lei nº 13.709/2018, é uma lei federal brasileira promulgada em 2018, que estabelece normas para a proteção e tratamento de dados pessoais em território nacional, bem como a proteção de direitos fundamentais, particularmente a privacidade, a honra e a intimidade. A LGPD também alterou os artigos 7º e 16º do chamado Marco Civil da Internet, lei federal que traz normas legais referentes ao uso da Internet no território brasileiro.",
+    "key_terms": [
+      "estabelece",
+      "geral",
+      "proteção",
+      "dados",
+      "pessoais"
+    ],
+    "start_char": 0,
+    "end_char": 503
+  },
+  "q_pt_15_2": {
+    "doc_id": "pt_15_lei_geral_de_prote_o_de_dados_pe_rev_new.md",
+    "anchor": "## Bases legais para o tratamento de dados pessoais\nÉ importante destacar que a LGPD limitou – taxativamente – as possibilidades de tratamento de dados, ou seja, somente poderá o controlador utilizar ",
+    "full_anchor": "## Bases legais para o tratamento de dados pessoais\nÉ importante destacar que a LGPD limitou – taxativamente – as possibilidades de tratamento de dados, ou seja, somente poderá o controlador utilizar dados pessoais com fundamento em, pelo menos, uma das 10 bases legais que veremos adiante:",
+    "key_terms": [
+      "quais",
+      "bases",
+      "legais",
+      "previstas",
+      "lgpd"
+    ],
+    "start_char": 6689,
+    "end_char": 6979
+  }
+}

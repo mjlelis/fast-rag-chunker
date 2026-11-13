@@ -1,0 +1,252 @@
+[
+  {
+    "query_id": "q_en_01_1",
+    "query": "What is a rolling hash and how does its sliding window work?",
+    "doc_id": "en_01_rolling_hash_rev_new.md"
+  },
+  {
+    "query_id": "q_en_01_2",
+    "query": "How is the rolling hash used in the Rabin-Karp string search algorithm?",
+    "doc_id": "en_01_rolling_hash_rev_new.md"
+  },
+  {
+    "query_id": "q_en_02_1",
+    "query": "How does retrieval-augmented generation augment large language models with external data?",
+    "doc_id": "en_02_retrieval_augmented_generation_rev_new.md"
+  },
+  {
+    "query_id": "q_en_02_2",
+    "query": "What is the distinction between dense and sparse vectors in RAG retrieval encoders?",
+    "doc_id": "en_02_retrieval_augmented_generation_rev_new.md"
+  },
+  {
+    "query_id": "q_en_03_1",
+    "query": "What security properties define an ideal cryptographic hash function?",
+    "doc_id": "en_03_cryptographic_hash_function_rev_new.md"
+  },
+  {
+    "query_id": "q_en_03_2",
+    "query": "Why is collision resistance crucial for cryptographic hash functions?",
+    "doc_id": "en_03_cryptographic_hash_function_rev_new.md"
+  },
+  {
+    "query_id": "q_en_04_1",
+    "query": "What service does a distributed hash table provide across participating nodes?",
+    "doc_id": "en_04_distributed_hash_table_rev_new.md"
+  },
+  {
+    "query_id": "q_en_04_2",
+    "query": "How do distributed hash tables achieve structured key-based routing?",
+    "doc_id": "en_04_distributed_hash_table_rev_new.md"
+  },
+  {
+    "query_id": "q_en_05_1",
+    "query": "What are the logarithmic time complexity properties of a B-tree data structure?",
+    "doc_id": "en_05_b_tree_rev_new.md"
+  },
+  {
+    "query_id": "q_en_05_2",
+    "query": "How do separation values and internal nodes divide subtrees in a B-tree?",
+    "doc_id": "en_05_b_tree_rev_new.md"
+  },
+  {
+    "query_id": "q_en_06_1",
+    "query": "Why are log-structured merge-trees attractive for high insert volume storage?",
+    "doc_id": "en_06_log_structured_merge_tree_rev_new.md"
+  },
+  {
+    "query_id": "q_en_06_2",
+    "query": "How do LSM trees balance sequential writes against read latency using compaction?",
+    "doc_id": "en_06_log_structured_merge_tree_rev_new.md"
+  },
+  {
+    "query_id": "q_en_07_1",
+    "query": "What fundamental problem does consensus address in distributed computing systems?",
+    "doc_id": "en_07_consensus_computer_science_rev_new.md"
+  },
+  {
+    "query_id": "q_en_07_2",
+    "query": "What is the difference between crash failures and Byzantine failures in consensus?",
+    "doc_id": "en_07_consensus_computer_science_rev_new.md"
+  },
+  {
+    "query_id": "q_en_08_1",
+    "query": "How does Raft achieve consensus via an elected leader and heartbeats?",
+    "doc_id": "en_08_raft_algorithm_rev_new.md"
+  },
+  {
+    "query_id": "q_en_08_2",
+    "query": "What purpose does the Pre-Vote extension serve when a member rejoins a Raft cluster?",
+    "doc_id": "en_08_raft_algorithm_rev_new.md"
+  },
+  {
+    "query_id": "q_en_09_1",
+    "query": "How does consistent hashing minimize key remapping when resizing node tables?",
+    "doc_id": "en_09_consistent_hashing_rev_new.md"
+  },
+  {
+    "query_id": "q_en_09_2",
+    "query": "How does consistent hashing distribute keys across cache servers on a circle?",
+    "doc_id": "en_09_consistent_hashing_rev_new.md"
+  },
+  {
+    "query_id": "q_en_10_1",
+    "query": "What space-efficient probabilistic guarantees are provided by a Bloom filter?",
+    "doc_id": "en_10_bloom_filter_rev_new.md"
+  },
+  {
+    "query_id": "q_en_11_1",
+    "query": "How does locality-sensitive hashing map similar input items to identical buckets?",
+    "doc_id": "en_11_locality_sensitive_hashing_rev_new.md"
+  },
+  {
+    "query_id": "q_en_12_1",
+    "query": "What is the core definition and objective of information retrieval systems?",
+    "doc_id": "en_12_information_retrieval_rev_new.md"
+  },
+  {
+    "query_id": "q_en_13_1",
+    "query": "How does tf-idf measure the statistical importance of words in a document corpus?",
+    "doc_id": "en_13_tf_idf_rev_new.md"
+  },
+  {
+    "query_id": "q_en_14_1",
+    "query": "What is Okapi BM25 and how do search engines use it for document ranking?",
+    "doc_id": "en_14_okapi_bm25_rev_new.md"
+  },
+  {
+    "query_id": "q_en_15_1",
+    "query": "What is an inverted index and what role do postings lists play in full-text search?",
+    "doc_id": "en_15_inverted_index_rev_new.md"
+  },
+  {
+    "query_id": "q_en_15_2",
+    "query": "Why do search engines use inverted indices for fast full-text querying?",
+    "doc_id": "en_15_inverted_index_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_01_1",
+    "query": "O que é uma tabela de dispersão e como ela associa chaves de busca a valores?",
+    "doc_id": "pt_01_tabela_de_dispers_o_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_01_2",
+    "query": "Como as colisões de chaves são tratadas em uma tabela hash?",
+    "doc_id": "pt_01_tabela_de_dispers_o_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_02_1",
+    "query": "Quais são as propriedades fundamentais de segurança de uma função hash criptográfica?",
+    "doc_id": "pt_02_fun_o_hash_criptogr_fica_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_02_2",
+    "query": "Como o efeito avalanche atua na alteração de um resumo criptográfico?",
+    "doc_id": "pt_02_fun_o_hash_criptogr_fica_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_03_1",
+    "query": "O que é uma árvore B e como ela garante pesquisas em tempo logarítmico?",
+    "doc_id": "pt_03_rvore_b_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_03_2",
+    "query": "Por que as árvores B são recomendadas para bancos de dados com armazenamento em disco?",
+    "doc_id": "pt_03_rvore_b_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_04_1",
+    "query": "Como funciona um sistema de processamento distribuído composto por múltiplos nós?",
+    "doc_id": "pt_04_sistema_de_processamento_distrib_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_04_2",
+    "query": "Quais vantagens de tolerância a falhas e desempenho oferece a computação distribuída?",
+    "doc_id": "pt_04_sistema_de_processamento_distrib_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_05_1",
+    "query": "O que estuda o campo de Processamento de Linguagem Natural (PLN)?",
+    "doc_id": "pt_05_processamento_de_linguagem_natur_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_05_2",
+    "query": "Como algoritmos de aprendizagem mecânica são aplicados em PLN estatístico?",
+    "doc_id": "pt_05_processamento_de_linguagem_natur_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_06_1",
+    "query": "O que estuda a área de aprendizado de máquina na ciência da computação?",
+    "doc_id": "pt_06_aprendizado_de_m_quina_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_06_2",
+    "query": "Qual a diferença entre aprendizado supervisionado e não supervisionado?",
+    "doc_id": "pt_06_aprendizado_de_m_quina_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_07_1",
+    "query": "Qual a definição geral de inteligência artificial na automação de tarefas cognitivas?",
+    "doc_id": "pt_07_intelig_ncia_artificial_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_08_1",
+    "query": "Como o modelo relacional organiza informações em tabelas e relações?",
+    "doc_id": "pt_08_banco_de_dados_relacional_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_08_2",
+    "query": "Qual a função da chave estrangeira na implementação de restrições relacionais?",
+    "doc_id": "pt_08_banco_de_dados_relacional_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_09_1",
+    "query": "O que faz um compilador ao processar código fonte de linguagens compiladas?",
+    "doc_id": "pt_09_compilador_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_09_2",
+    "query": "Qual a atribuição do analisador léxico durante a leitura de código?",
+    "doc_id": "pt_09_compilador_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_10_1",
+    "query": "Como o sistema operacional gerencia memória, processamento e interface de máquina?",
+    "doc_id": "pt_10_sistema_operativo_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_11_1",
+    "query": "Como a memória física é dividida em molduras de páginas no esquema de paginação?",
+    "doc_id": "pt_11_mem_ria_virtual_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_11_2",
+    "query": "Qual o papel do dispositivo MMU na tradução entre endereços virtuais e físicos?",
+    "doc_id": "pt_11_mem_ria_virtual_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_12_1",
+    "query": "Qual é a função do escalonador de processos no gerenciamento de tempo da CPU?",
+    "doc_id": "pt_12_escalonamento_de_processos_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_13_1",
+    "query": "Como o protocolo TCP fornece entrega ordenada e verificação de erros na Internet?",
+    "doc_id": "pt_13_protocolo_de_controle_de_transmi_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_14_1",
+    "query": "Como se dá a divisão entre chave pública e chave privada na criptografia assimétrica?",
+    "doc_id": "pt_14_criptografia_de_chave_p_blica_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_15_1",
+    "query": "O que estabelece a Lei Geral de Proteção de Dados Pessoais (LGPD) no Brasil?",
+    "doc_id": "pt_15_lei_geral_de_prote_o_de_dados_pe_rev_new.md"
+  },
+  {
+    "query_id": "q_pt_15_2",
+    "query": "Quais são as dez bases legais previstas na LGPD para o tratamento de dados pessoais?",
+    "doc_id": "pt_15_lei_geral_de_prote_o_de_dados_pe_rev_new.md"
+  }
+]

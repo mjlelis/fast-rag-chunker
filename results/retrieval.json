@@ -1,0 +1,94 @@
+{
+  "benchmark": "retrieval_v0.3.0",
+  "command": "python -m bench.retrieval --out results/retrieval.json",
+  "timestamp": "2026-11-13T23:16:37.402231+00:00",
+  "framework": "Haystack 2.12.0 (InMemoryDocumentStore + InMemoryBM25Retriever)",
+  "corpus": {
+    "total_documents": 30,
+    "languages": [
+      "en",
+      "pt"
+    ],
+    "total_queries": 50
+  },
+  "metrics": [
+    "recall_at_5",
+    "recall_at_10",
+    "ndcg_at_10",
+    "mrr"
+  ],
+  "splitters": [
+    {
+      "splitter_id": "fast_rag_boundary",
+      "family": "fast-rag-chunker",
+      "config_variant": "boundary (64..512B, nfc)",
+      "label": "fast-rag-chunker (Boundary, 64..512B)",
+      "total_chunks": 1516,
+      "avg_chunk_bytes": 270.3,
+      "recall_at_5": 0.9,
+      "recall_at_10": 0.94,
+      "ndcg_at_10": 0.8265,
+      "mrr": 0.84
+    },
+    {
+      "splitter_id": "haystack_doc_splitter",
+      "family": "Haystack",
+      "config_variant": "split_by=word, length=256, overlap=32",
+      "label": "Haystack DocumentSplitter (256w, overlap=32)",
+      "total_chunks": 286,
+      "avg_chunk_bytes": 1621.5,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 0.9483,
+      "mrr": 0.965
+    },
+    {
+      "splitter_id": "langchain_recursive",
+      "family": "LangChain",
+      "config_variant": "chunk_size=256, overlap=32",
+      "label": "LangChain RecursiveCharacter (256c, overlap=32)",
+      "total_chunks": 2353,
+      "avg_chunk_bytes": 206.3,
+      "recall_at_5": 0.88,
+      "recall_at_10": 0.94,
+      "ndcg_at_10": 0.8027,
+      "mrr": 0.8114
+    },
+    {
+      "splitter_id": "llamaindex_sentence",
+      "family": "LlamaIndex",
+      "config_variant": "chunk_size=256, overlap=32",
+      "label": "LlamaIndex SentenceSplitter (256c, overlap=32)",
+      "total_chunks": 1990,
+      "avg_chunk_bytes": 206.8,
+      "recall_at_5": 0.9,
+      "recall_at_10": 0.94,
+      "ndcg_at_10": 0.7916,
+      "mrr": 0.8022
+    },
+    {
+      "splitter_id": "fixed_window",
+      "family": "Fixed Window",
+      "config_variant": "window=256, overlap=32",
+      "label": "Fixed Window + Overlap (256B, overlap=32)",
+      "total_chunks": 1812,
+      "avg_chunk_bytes": 258.2,
+      "recall_at_5": 0.88,
+      "recall_at_10": 0.94,
+      "ndcg_at_10": 0.7923,
+      "mrr": 0.8101
+    },
+    {
+      "splitter_id": "paragraph_split",
+      "family": "Paragraph Split",
+      "config_variant": "bounded 64..512B",
+      "label": "Paragraph Split + Hash (bounded 64..512B)",
+      "total_chunks": 758,
+      "avg_chunk_bytes": 540.5,
+      "recall_at_5": 0.96,
+      "recall_at_10": 0.96,
+      "ndcg_at_10": 0.8755,
+      "mrr": 0.8967
+    }
+  ]
+}
