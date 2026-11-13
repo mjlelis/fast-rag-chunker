@@ -1,6 +1,15 @@
 import pytest
-import fast_rag_chunker
-from fast_rag_chunker import ChunkerConfig, cache_key, chunk_documents_batch, chunker_fingerprint
+
+try:
+    import fast_rag_chunker
+    from fast_rag_chunker import ChunkerConfig, cache_key, chunk_documents_batch, chunker_fingerprint
+except ImportError:
+    from tests.e2e.adapter import (
+        ChunkerConfig,
+        cache_key,
+        chunk_documents_batch,
+        chunker_fingerprint,
+    )
 
 
 def test_contiguous_offsets_and_valid_utf8():

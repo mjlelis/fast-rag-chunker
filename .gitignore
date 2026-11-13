@@ -23,3 +23,7 @@ venv/
 .vscode/
 *.swp
 *.swo
+
+# Teamwork metadata
+.agents/
+

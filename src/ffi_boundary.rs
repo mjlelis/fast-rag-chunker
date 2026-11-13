@@ -2,7 +2,10 @@ use std::panic::catch_unwind;
 use std::ptr;
 use std::slice;
 
-use crate::safe_core::{chunk_slice_compat, chunk_with_config, ChunkerConfig, ChunkingMode};
+use crate::safe_core::{
+    chunk_slice_compat, chunk_with_config, ChunkerConfig, ChunkingMode, NormalizationMode,
+    SizeUnit,
+};
 
 /// Return code when input pointers or chunk size parameters are invalid.
 pub const CHUNKER_ERR_INVALID: i32 = -1;
@@ -11,14 +14,26 @@ pub const CHUNKER_ERR_INVALID: i32 = -1;
 /// The first `max_chunks` items are written to `out_boundaries`.
 pub const CHUNKER_ERR_TRUNCATED: i32 = -2;
 
-/// Mode constant for `rust_chunk_buffer_v2`: C-legacy clamped compatibility mode.
+/// Mode constant for C ABI: C-legacy clamped compatibility mode.
 pub const CHUNKER_MODE_COMPAT_C: u32 = 0;
 
-/// Mode constant for `rust_chunk_buffer_v2`: unclamped raw FastCDC mode.
+/// Mode constant for C ABI: unclamped raw FastCDC mode.
 pub const CHUNKER_MODE_RAW: u32 = 1;
 
-/// Mode constant for `rust_chunk_buffer_v2`: UTF-8 and natural-language semantic boundary mode.
+/// Mode constant for C ABI: UTF-8 and natural-language semantic boundary mode (deprecated alias).
 pub const CHUNKER_MODE_SEMANTIC: u32 = 2;
+
+/// Mode constant for C ABI: Priority boundary mode.
+pub const CHUNKER_MODE_BOUNDARY: u32 = 3;
+
+/// Normalization mode constants for `rust_chunk_buffer_v3`.
+pub const CHUNKER_NORMALIZE_NONE: u32 = 0;
+pub const CHUNKER_NORMALIZE_WHITESPACE: u32 = 1;
+pub const CHUNKER_NORMALIZE_NFC: u32 = 2;
+
+/// Size unit constants for `rust_chunk_buffer_v3`.
+pub const CHUNKER_UNIT_BYTES: u32 = 0;
+pub const CHUNKER_UNIT_TOKENS: u32 = 1;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,19 +51,25 @@ pub struct ChunkBoundaryV2 {
     pub digest: [u8; 16],
 }
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ChunkBoundaryV3 {
+    pub offset: usize,
+    pub length: usize,
+    pub digest: [u8; 16],
+    pub ordinal: usize,
+}
+
 /// v1 C ABI compatible entry point demonstrating the Strangler Fig replacement pattern.
 ///
-/// Retained unchanged in v0.2.0 to preserve v1 binary compatibility and C parity tests.
+/// Retained unchanged in v0.3.0 to preserve v1 binary compatibility and C parity tests.
 ///
 /// # Safety
 ///
 /// - If `len > 0`, `buf` must be a valid, non-null pointer to at least `len` initialized
-///   bytes that remain valid and unmutated for the duration of this call (passing a null
-///   `buf` is safely caught and returns `CHUNKER_ERR_INVALID`).
+///   bytes that remain valid and unmutated for the duration of this call.
 /// - `out_boundaries` must be a valid, properly aligned, non-overlapping mutable pointer
-///   with capacity for at least `max_chunks` elements of `ChunkBoundary` (passing a null
-///   `out_boundaries` is safely caught and returns `CHUNKER_ERR_INVALID`). The memory at
-///   `out_boundaries` does not need to be initialized prior to calling this function.
+///   with capacity for at least `max_chunks` elements of `ChunkBoundary`.
 #[no_mangle]
 pub unsafe extern "C" fn rust_chunk_buffer(
     buf: *const u8,
@@ -105,16 +126,13 @@ pub unsafe extern "C" fn rust_chunk_buffer(
 }
 
 /// v2 C ABI entry point supporting `CHUNKER_MODE_COMPAT_C` (0), `CHUNKER_MODE_RAW` (1),
-/// and `CHUNKER_MODE_SEMANTIC` (2), explicit `avg_chunk` (pass 0 for default midpoint),
+/// `CHUNKER_MODE_SEMANTIC` (2), and `CHUNKER_MODE_BOUNDARY` (3), explicit `avg_chunk`,
 /// and 128-bit (16-byte) BLAKE3 content digests in `ChunkBoundaryV2`.
 ///
 /// # Safety
 ///
-/// - If `len > 0`, `buf` must be a valid, non-null pointer to at least `len` initialized
-///   bytes that remain valid and unmutated for the duration of this call.
-/// - `out_boundaries` must be a valid, properly aligned, non-overlapping mutable pointer
-///   with capacity for at least `max_chunks` elements of `ChunkBoundaryV2`. The memory at
-///   `out_boundaries` does not need to be initialized prior to calling this function.
+/// - If `len > 0`, `buf` must be a valid, non-null pointer to at least `len` initialized bytes.
+/// - `out_boundaries` must be a valid, properly aligned mutable pointer for `max_chunks` elements.
 #[no_mangle]
 pub unsafe extern "C" fn rust_chunk_buffer_v2(
     buf: *const u8,
@@ -141,7 +159,7 @@ pub unsafe extern "C" fn rust_chunk_buffer_v2(
         let chunking_mode = match mode {
             CHUNKER_MODE_COMPAT_C => ChunkingMode::CompatC,
             CHUNKER_MODE_RAW => ChunkingMode::Raw,
-            CHUNKER_MODE_SEMANTIC => ChunkingMode::Semantic,
+            CHUNKER_MODE_SEMANTIC | CHUNKER_MODE_BOUNDARY => ChunkingMode::Boundary,
             _ => return CHUNKER_ERR_INVALID,
         };
 
@@ -195,6 +213,122 @@ pub unsafe extern "C" fn rust_chunk_buffer_v2(
     result.unwrap_or(CHUNKER_ERR_INVALID)
 }
 
+/// v3 C ABI entry point supporting priority boundary mode, snap window,
+/// pre-hash normalization, token/byte units, and ordinal indexing.
+///
+/// # Safety
+///
+/// - If `len > 0`, `buf` must be a valid, non-null pointer to at least `len` initialized bytes.
+/// - `out_boundaries` must be a valid, properly aligned mutable pointer for `max_chunks` elements.
+#[no_mangle]
+pub unsafe extern "C" fn rust_chunk_buffer_v3(
+    buf: *const u8,
+    len: usize,
+    min_chunk: usize,
+    avg_chunk: usize,
+    max_chunk: usize,
+    mode: u32,
+    snap_window: u32,
+    normalize: u32,
+    size_unit: u32,
+    compute_hash: i32,
+    out_boundaries: *mut ChunkBoundaryV3,
+    max_chunks: usize,
+) -> i32 {
+    let result = catch_unwind(|| {
+        if buf.is_null()
+            || out_boundaries.is_null()
+            || min_chunk == 0
+            || max_chunk < min_chunk
+            || max_chunks == 0
+            || i32::try_from(max_chunks).is_err()
+        {
+            return CHUNKER_ERR_INVALID;
+        }
+
+        let chunking_mode = match mode {
+            CHUNKER_MODE_COMPAT_C => ChunkingMode::CompatC,
+            CHUNKER_MODE_RAW => ChunkingMode::Raw,
+            CHUNKER_MODE_SEMANTIC | CHUNKER_MODE_BOUNDARY => ChunkingMode::Boundary,
+            _ => return CHUNKER_ERR_INVALID,
+        };
+
+        let norm_mode = match normalize {
+            CHUNKER_NORMALIZE_NONE => NormalizationMode::None,
+            CHUNKER_NORMALIZE_WHITESPACE => NormalizationMode::Whitespace,
+            CHUNKER_NORMALIZE_NFC => NormalizationMode::Nfc,
+            _ => return CHUNKER_ERR_INVALID,
+        };
+
+        let unit = match size_unit {
+            CHUNKER_UNIT_BYTES => SizeUnit::Bytes,
+            CHUNKER_UNIT_TOKENS => SizeUnit::Tokens,
+            _ => return CHUNKER_ERR_INVALID,
+        };
+
+        let avg_opt = if avg_chunk == 0 {
+            None
+        } else {
+            Some(avg_chunk)
+        };
+
+        let snap_opt = if snap_window == 0 {
+            None
+        } else {
+            Some(snap_window as usize)
+        };
+
+        let cfg = match ChunkerConfig::new_full(
+            min_chunk,
+            avg_opt,
+            max_chunk,
+            chunking_mode,
+            compute_hash != 0,
+            snap_opt,
+            unit,
+            norm_mode,
+            0,
+            0,
+        ) {
+            Ok(c) => c,
+            Err(_) => return CHUNKER_ERR_INVALID,
+        };
+
+        if len == 0 {
+            return 0;
+        }
+
+        let slice_data = unsafe { slice::from_raw_parts(buf, len) };
+
+        match chunk_with_config(slice_data, &cfg) {
+            Ok(chunks) => {
+                let to_copy = chunks.len().min(max_chunks);
+                for (i, chunk) in chunks.iter().take(to_copy).enumerate() {
+                    unsafe {
+                        ptr::write(
+                            out_boundaries.add(i),
+                            ChunkBoundaryV3 {
+                                offset: chunk.offset,
+                                length: chunk.length,
+                                digest: chunk.digest,
+                                ordinal: chunk.ordinal,
+                            },
+                        );
+                    }
+                }
+                if chunks.len() > max_chunks {
+                    CHUNKER_ERR_TRUNCATED
+                } else {
+                    to_copy as i32
+                }
+            }
+            Err(_) => CHUNKER_ERR_INVALID,
+        }
+    });
+
+    result.unwrap_or(CHUNKER_ERR_INVALID)
+}
+
 extern "C" {
     pub fn chunk_buffer(
         buf: *const u8,
@@ -231,6 +365,57 @@ mod tests {
                 10,
             );
             assert_eq!(res_v2, CHUNKER_ERR_INVALID);
+
+            let res_v3 = rust_chunk_buffer_v3(
+                ptr::null(),
+                10,
+                64,
+                0,
+                512,
+                CHUNKER_MODE_BOUNDARY,
+                0,
+                0,
+                0,
+                1,
+                ptr::null_mut(),
+                10,
+            );
+            assert_eq!(res_v3, CHUNKER_ERR_INVALID);
+        }
+    }
+
+    #[test]
+    fn test_rust_chunk_buffer_v3_execution() {
+        let text = b"# Header Title\n\nFirst paragraph content here. Second paragraph content follows.";
+        let mut out = [ChunkBoundaryV3 {
+            offset: 0,
+            length: 0,
+            digest: [0u8; 16],
+            ordinal: 0,
+        }; 8];
+
+        let count = unsafe {
+            rust_chunk_buffer_v3(
+                text.as_ptr(),
+                text.len(),
+                16,
+                32,
+                64,
+                CHUNKER_MODE_BOUNDARY,
+                0,
+                CHUNKER_NORMALIZE_NONE,
+                CHUNKER_UNIT_BYTES,
+                1,
+                out.as_mut_ptr(),
+                8,
+            )
+        };
+
+        assert!(count >= 1);
+        for i in 0..(count as usize) {
+            assert_eq!(out[i].ordinal, i);
+            assert!(out[i].length > 0);
+            assert_ne!(out[i].digest, [0u8; 16]);
         }
     }
 
