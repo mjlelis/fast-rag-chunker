@@ -269,8 +269,8 @@ impl PyChunkerConfig {
             ChunkingMode::parse(mode).map_err(|err| PyValueError::new_err(err.to_string()))?;
         let parsed_unit =
             SizeUnit::parse(size_unit).map_err(|err| PyValueError::new_err(err.to_string()))?;
-        let parsed_norm =
-            NormalizationMode::parse(normalize).map_err(|err| PyValueError::new_err(err.to_string()))?;
+        let parsed_norm = NormalizationMode::parse(normalize)
+            .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
         if let Some(n) = num_threads {
             if n == 0 {
@@ -384,8 +384,8 @@ fn resolve_config(
         ChunkingMode::parse(mode).map_err(|err| PyValueError::new_err(err.to_string()))?;
     let parsed_unit =
         SizeUnit::parse(size_unit).map_err(|err| PyValueError::new_err(err.to_string()))?;
-    let parsed_norm =
-        NormalizationMode::parse(normalize).map_err(|err| PyValueError::new_err(err.to_string()))?;
+    let parsed_norm = NormalizationMode::parse(normalize)
+        .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
     ChunkerConfig::new_full(
         min_chunk,

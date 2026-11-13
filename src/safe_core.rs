@@ -22,20 +22,18 @@ pub const MAX_CHUNK_SIZE_LIMIT: usize = MAXIMUM_MAX as usize;
 
 /// Curated English abbreviation whitelist to prevent false sentence cuts.
 pub static EN_ABBREVIATIONS: &[&str] = &[
-    "mr", "mrs", "ms", "dr", "prof", "sr", "jr", "vs", "etc", "eg", "ie",
-    "approx", "al", "jan", "feb", "mar", "apr", "aug", "sept", "sep", "oct",
-    "nov", "dec", "fig", "no", "vol", "vols", "dept", "est", "div", "corp",
-    "inc", "ltd", "co", "ave", "st", "rd", "blvd", "gen", "col", "capt",
-    "lt", "sgt", "rev", "hon", "gov", "sen", "rep", "ph.d", "m.d", "b.a",
+    "mr", "mrs", "ms", "dr", "prof", "sr", "jr", "vs", "etc", "eg", "ie", "approx", "al", "jan",
+    "feb", "mar", "apr", "aug", "sept", "sep", "oct", "nov", "dec", "fig", "no", "vol", "vols",
+    "dept", "est", "div", "corp", "inc", "ltd", "co", "ave", "st", "rd", "blvd", "gen", "col",
+    "capt", "lt", "sgt", "rev", "hon", "gov", "sen", "rep", "ph.d", "m.d", "b.a",
 ];
 
 /// Curated Portuguese abbreviation whitelist to prevent false sentence cuts.
 pub static PT_ABBREVIATIONS: &[&str] = &[
-    "art", "arts", "av", "bl", "cap", "cia", "coord", "dr", "dra", "drs",
-    "dras", "ed", "eng", "ex", "exmo", "exma", "fig", "hab", "ilmo", "ilma",
-    "inc", "n", "num", "obs", "pag", "pags", "pág", "págs", "prof", "profa",
-    "profs", "profas", "rod", "sec", "sr", "sra", "srs", "sras", "tel",
-    "univ", "v", "vol", "vols", "adm", "cel", "ten", "maj", "des", "min", "dep",
+    "art", "arts", "av", "bl", "cap", "cia", "coord", "dr", "dra", "drs", "dras", "ed", "eng",
+    "ex", "exmo", "exma", "fig", "hab", "ilmo", "ilma", "inc", "n", "num", "obs", "pag", "pags",
+    "pág", "págs", "prof", "profa", "profs", "profas", "rod", "sec", "sr", "sra", "srs", "sras",
+    "tel", "univ", "v", "vol", "vols", "adm", "cel", "ten", "maj", "des", "min", "dep",
 ];
 
 /// CJK sentence terminators in UTF-8 byte sequences.
@@ -292,7 +290,9 @@ pub enum ChunkerError {
     InvalidAverageChunkSize { min: usize, avg: usize, max: usize },
     #[error("Chunk size ({size}) exceeds maximum supported limit ({max_allowed} bytes)")]
     ChunkSizeTooLarge { size: usize, max_allowed: usize },
-    #[error("Invalid mode: '{mode}'. Expected one of ['boundary', 'boundary_aware', 'compat_c', 'raw']")]
+    #[error(
+        "Invalid mode: '{mode}'. Expected one of ['boundary', 'boundary_aware', 'compat_c', 'raw']"
+    )]
     InvalidMode { mode: String },
     #[error("Invalid size_unit: '{unit}'. Expected 'bytes' or 'tokens'")]
     InvalidSizeUnit { unit: String },
@@ -563,7 +563,11 @@ pub fn is_sentence_abbreviation(data: &[u8], period_byte_idx: usize) -> bool {
 }
 
 /// Searches `data[window_start..window_end]` for the highest-priority semantic boundary.
-pub fn find_priority_boundary(data: &[u8], window_start: usize, window_end: usize) -> Option<usize> {
+pub fn find_priority_boundary(
+    data: &[u8],
+    window_start: usize,
+    window_end: usize,
+) -> Option<usize> {
     if window_start >= window_end || window_start >= data.len() {
         return None;
     }
@@ -1042,11 +1046,8 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
             if combined_len <= max_limit {
                 // Merge into previous chunk
                 let merged_slice = &data[prev_offset..prev_offset + combined_len];
-                let digest = compute_chunk_digest(
-                    merged_slice,
-                    validated.compute_hash,
-                    validated.normalize,
-                );
+                let digest =
+                    compute_chunk_digest(merged_slice, validated.compute_hash, validated.normalize);
                 chunks[last_idx].length = combined_len;
                 chunks[last_idx].digest = digest;
                 break;
@@ -1129,8 +1130,7 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
         }
 
         let raw_slice = &data[offset..offset + length];
-        let digest =
-            compute_chunk_digest(raw_slice, validated.compute_hash, validated.normalize);
+        let digest = compute_chunk_digest(raw_slice, validated.compute_hash, validated.normalize);
         let heading_path = extract_heading_stack_at(data, offset + length);
 
         chunks.push(Chunk {
@@ -1317,7 +1317,8 @@ mod tests {
         let doc = b"Dr. Watson visited the hospital. All items approved.";
         let config = ChunkerConfig::new(15, Some(30), 60, ChunkingMode::Boundary, true).unwrap();
         let chunks = chunk_with_config(doc, &config).unwrap();
-        let first_text = String::from_utf8_lossy(&doc[chunks[0].offset..chunks[0].offset + chunks[0].length]);
+        let first_text =
+            String::from_utf8_lossy(&doc[chunks[0].offset..chunks[0].offset + chunks[0].length]);
         assert!(!first_text.ends_with("Dr."));
     }
 
@@ -1375,7 +1376,8 @@ mod tests {
             context_after: String::new(),
         };
 
-        let (to_embed, to_delete, to_meta) = diff_chunks(&[c1.clone(), c2.clone()], &[c1.clone(), c3.clone()]);
+        let (to_embed, to_delete, to_meta) =
+            diff_chunks(&[c1.clone(), c2.clone()], &[c1.clone(), c3.clone()]);
         assert_eq!(to_embed.len(), 1);
         assert_eq!(to_embed[0].digest, [3u8; 16]);
         assert_eq!(to_delete.len(), 1);

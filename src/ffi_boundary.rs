@@ -3,8 +3,7 @@ use std::ptr;
 use std::slice;
 
 use crate::safe_core::{
-    chunk_slice_compat, chunk_with_config, ChunkerConfig, ChunkingMode, NormalizationMode,
-    SizeUnit,
+    chunk_slice_compat, chunk_with_config, ChunkerConfig, ChunkingMode, NormalizationMode, SizeUnit,
 };
 
 /// Return code when input pointers or chunk size parameters are invalid.
@@ -386,7 +385,8 @@ mod tests {
 
     #[test]
     fn test_rust_chunk_buffer_v3_execution() {
-        let text = b"# Header Title\n\nFirst paragraph content here. Second paragraph content follows.";
+        let text =
+            b"# Header Title\n\nFirst paragraph content here. Second paragraph content follows.";
         let mut out = [ChunkBoundaryV3 {
             offset: 0,
             length: 0,
