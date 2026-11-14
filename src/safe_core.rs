@@ -563,11 +563,7 @@ pub fn is_sentence_abbreviation(data: &[u8], period_byte_idx: usize) -> bool {
 }
 
 /// Finds the first Markdown heading (Priority 1) in `data` within `[window_start, window_end]`.
-pub fn find_markdown_heading(
-    data: &[u8],
-    window_start: usize,
-    window_end: usize,
-) -> Option<usize> {
+pub fn find_markdown_heading(data: &[u8], window_start: usize, window_end: usize) -> Option<usize> {
     if window_start >= window_end || window_start >= data.len() {
         return None;
     }
@@ -1396,8 +1392,7 @@ mod tests {
     #[test]
     fn test_markdown_heading_priority_small_doc() {
         let doc = b"Paragraph body content before the section title. This is descriptive text.\n# New Major Heading\nThis is the start of the next section.";
-        let config =
-            ChunkerConfig::new(32, Some(70), 150, ChunkingMode::Boundary, true).unwrap();
+        let config = ChunkerConfig::new(32, Some(70), 150, ChunkingMode::Boundary, true).unwrap();
         let chunks = chunk_with_config(doc, &config).unwrap();
         assert!(chunks.len() >= 2);
         let sec2 = &doc[chunks[1].offset..chunks[1].offset + chunks[1].length];
@@ -1407,8 +1402,7 @@ mod tests {
     #[test]
     fn test_small_doc_no_heading_single_chunk() {
         let doc = b"# Header\n\nContent without any heading beyond min_chunk.";
-        let config =
-            ChunkerConfig::new(15, Some(67), 120, ChunkingMode::Boundary, true).unwrap();
+        let config = ChunkerConfig::new(15, Some(67), 120, ChunkingMode::Boundary, true).unwrap();
         let chunks = chunk_with_config(doc, &config).unwrap();
         assert_eq!(chunks.len(), 1);
         assert_eq!(chunks[0].length, doc.len());
@@ -1417,8 +1411,7 @@ mod tests {
     #[test]
     fn test_tail_remainder_min_minus_one_raw_mode() {
         let doc = [b"A".repeat(80), b"B".repeat(63)].concat();
-        let config =
-            ChunkerConfig::new(64, Some(80), 200, ChunkingMode::Raw, true).unwrap();
+        let config = ChunkerConfig::new(64, Some(80), 200, ChunkingMode::Raw, true).unwrap();
         let chunks = chunk_with_config(&doc, &config).unwrap();
         assert_eq!(chunks.len(), 1);
         assert_eq!(chunks[0].length, 143);

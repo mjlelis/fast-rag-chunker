@@ -267,9 +267,7 @@ impl PyChunkerConfig {
         }
         if let Some(w) = snap_window {
             if w <= 0 {
-                return Err(PyValueError::new_err(
-                    "Snap window must be greater than 0",
-                ));
+                return Err(PyValueError::new_err("Snap window must be greater than 0"));
             }
         }
         if context_before < 0 {
@@ -428,9 +426,7 @@ fn resolve_config(
     }
     if let Some(w) = snap_window {
         if w <= 0 {
-            return Err(PyValueError::new_err(
-                "Snap window must be greater than 0",
-            ));
+            return Err(PyValueError::new_err("Snap window must be greater than 0"));
         }
     }
     if context_before < 0 {
