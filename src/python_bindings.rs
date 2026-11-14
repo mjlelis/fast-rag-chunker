@@ -12,7 +12,7 @@ use crate::safe_core::{
     cache_key as rust_cache_key, chunk_batch_with_config,
     chunker_fingerprint as rust_chunker_fingerprint, diff_chunks as rust_diff_chunks,
     encode_hex_16, resolve_snap_window as rust_resolve_snap_window, Chunk, ChunkerConfig,
-    ChunkingMode, NormalizationMode, SizeUnit, ALGORITHM_VERSION,
+    ChunkingMode, NormalizationMode, SizeUnit, ALGORITHM_VERSION, MAX_CHUNK_SIZE_LIMIT,
 };
 
 #[cfg(feature = "python")]
