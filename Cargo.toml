@@ -21,7 +21,6 @@ blake3 = "1.5"
 pyo3 = { version = "0.24", optional = true }
 rayon = "1.10"
 thiserror = "1.0"
-unicode-segmentation = "1.12"
 unicode-normalization = "0.1"
 
 [build-dependencies]

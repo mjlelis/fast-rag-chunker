@@ -412,10 +412,10 @@ mod tests {
         };
 
         assert!(count >= 1);
-        for i in 0..(count as usize) {
-            assert_eq!(out[i].ordinal, i);
-            assert!(out[i].length > 0);
-            assert_ne!(out[i].digest, [0u8; 16]);
+        for (i, item) in out.iter().enumerate().take(count as usize) {
+            assert_eq!(item.ordinal, i);
+            assert!(item.length > 0);
+            assert_ne!(item.digest, [0u8; 16]);
         }
     }
 

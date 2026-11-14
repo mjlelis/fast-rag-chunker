@@ -1093,23 +1093,22 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
         }
 
         let target_cut = (offset + avg_limit).min(doc_len);
-        let mut cut_point = (offset + max_limit).min(doc_len);
-
-        if validated.mode == ChunkingMode::Boundary {
+        let fallback_cut = (offset + avg_limit).min(offset + max_limit);
+        let mut cut_point = if validated.mode == ChunkingMode::Boundary {
             let w_start = (offset + min_limit).max(target_cut.saturating_sub(snap_win));
             let w_end = (offset + max_limit).min(target_cut + snap_win);
             if let Some(chosen) = find_priority_boundary(data, w_start, w_end) {
                 if chosen > offset {
-                    cut_point = chosen;
+                    chosen
                 } else {
-                    cut_point = (offset + avg_limit).min(offset + max_limit);
+                    fallback_cut
                 }
             } else {
-                cut_point = (offset + avg_limit).min(offset + max_limit);
+                fallback_cut
             }
         } else {
-            cut_point = (offset + avg_limit).min(offset + max_limit);
-        }
+            fallback_cut
+        };
 
         // UTF-8 codepoint boundary fallback
         while cut_point < doc_len && (data[cut_point] & 0xC0) == 0x80 {
