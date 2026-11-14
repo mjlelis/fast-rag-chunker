@@ -66,7 +66,7 @@ jobs:
           python -m pip install --upgrade pip maturin pytest
           maturin build --release --out dist
           python -m pip install --force-reinstall dist/*.whl
-          pytest -v tests/
+          python -m pytest -v tests/
 
       - name: Verify corpus SHA-256 manifest
         run: python -m bench.corpus.download_corpus --verify
