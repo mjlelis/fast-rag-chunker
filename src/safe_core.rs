@@ -1011,6 +1011,15 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
     let avg_limit = validated.avg_chunk;
     let snap_win = resolve_snap_window(avg_limit, min_limit, max_limit, validated.snap_window);
 
+    let raw_mi = min_limit as u32;
+    let raw_av = avg_limit as u32;
+    let raw_ma = max_limit as u32;
+
+    let bits = f64::from(raw_av.max(4)).log2().round().max(2.0) as u32;
+    let ns = normal_size(raw_mi, raw_av, raw_ma) as usize;
+    let mask_s = mask(bits + 1);
+    let mask_l = mask(bits.saturating_sub(1));
+
     let mut chunks: Vec<Chunk> = Vec::new();
     let mut offset = 0;
     let mut ordinal = 0;
@@ -1092,22 +1101,27 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
             }
         }
 
-        let target_cut = (offset + avg_limit).min(doc_len);
-        let fallback_cut = (offset + avg_limit).min(offset + max_limit);
+        // FastCDC rolling Gear hash determines base cut point C_raw
+        let raw_len = cut_fastcdc(&data[offset..], min_limit, max_limit, ns, mask_s, mask_l);
+        let c_raw = offset + raw_len;
+
+        // Localized boundary snapping window around C_raw:
+        // [C_raw - snap_window, C_raw + snap_window] clamped to [min_limit, max_limit]
+        let w_start = (offset + min_limit).max(c_raw.saturating_sub(snap_win));
+        let w_end = ((offset + max_limit).min(doc_len)).min(c_raw + snap_win);
+
         let mut cut_point = if validated.mode == ChunkingMode::Boundary {
-            let w_start = (offset + min_limit).max(target_cut.saturating_sub(snap_win));
-            let w_end = (offset + max_limit).min(target_cut + snap_win);
             if let Some(chosen) = find_priority_boundary(data, w_start, w_end) {
                 if chosen > offset {
                     chosen
                 } else {
-                    fallback_cut
+                    c_raw
                 }
             } else {
-                fallback_cut
+                c_raw
             }
         } else {
-            fallback_cut
+            c_raw
         };
 
         // UTF-8 codepoint boundary fallback
