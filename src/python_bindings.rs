@@ -209,17 +209,17 @@ impl PyChunkerConfig {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         py: Python<'_>,
-        min_chunk: usize,
-        max_chunk: usize,
-        avg_chunk: Option<usize>,
+        min_chunk: i64,
+        max_chunk: i64,
+        avg_chunk: Option<i64>,
         mut mode: &str,
         compute_hash: bool,
-        snap_window: Option<usize>,
+        snap_window: Option<i64>,
         size_unit: &str,
         normalize: &str,
-        context_before: usize,
-        context_after: usize,
-        num_threads: Option<usize>,
+        context_before: i64,
+        context_after: i64,
+        num_threads: Option<i64>,
         semantic_snap: Option<bool>,
         kwargs: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<Self> {
@@ -234,6 +234,54 @@ impl PyChunkerConfig {
                 return Err(PyTypeError::new_err(format!(
                     "ChunkerConfig.__init__() got an unexpected keyword argument '{}'",
                     first_key
+                )));
+            }
+        }
+
+        if min_chunk <= 0 {
+            return Err(PyValueError::new_err(
+                "Minimum chunk size must be greater than 0",
+            ));
+        }
+        if max_chunk <= 0 {
+            return Err(PyValueError::new_err(
+                "Maximum chunk size must be greater than 0",
+            ));
+        }
+        if min_chunk > max_chunk {
+            return Err(PyValueError::new_err(format!(
+                "Minimum chunk size ({min_chunk}) cannot be greater than maximum chunk size ({max_chunk})"
+            )));
+        }
+        if let Some(avg) = avg_chunk {
+            if avg < min_chunk || avg > max_chunk {
+                return Err(PyValueError::new_err(format!(
+                    "Average chunk size ({avg}) must be between minimum ({min_chunk}) and maximum ({max_chunk})"
+                )));
+            }
+        }
+        if max_chunk as usize > MAX_CHUNK_SIZE_LIMIT {
+            return Err(PyValueError::new_err(format!(
+                "Chunk size ({max_chunk}) exceeds maximum supported limit ({MAX_CHUNK_SIZE_LIMIT} bytes)"
+            )));
+        }
+        if let Some(w) = snap_window {
+            if w <= 0 {
+                return Err(PyValueError::new_err(
+                    "Snap window must be greater than 0",
+                ));
+            }
+        }
+        if context_before < 0 {
+            return Err(PyValueError::new_err("context_before must be >= 0"));
+        }
+        if context_after < 0 {
+            return Err(PyValueError::new_err("context_after must be >= 0"));
+        }
+        if let Some(n) = num_threads {
+            if n <= 0 {
+                return Err(PyValueError::new_err(format!(
+                    "Invalid thread count ({n}): num_threads must be >= 1"
                 )));
             }
         }
@@ -272,25 +320,23 @@ impl PyChunkerConfig {
         let parsed_norm = NormalizationMode::parse(normalize)
             .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
-        if let Some(n) = num_threads {
-            if n == 0 {
-                return Err(PyValueError::new_err(
-                    "Invalid thread count (0): num_threads must be >= 1",
-                ));
-            }
-        }
+        let mode_str = if trimmed_mode == "boundary_aware" {
+            "boundary_aware".to_string()
+        } else {
+            parsed_mode.as_str().to_string()
+        };
 
         let inner = ChunkerConfig::new_full(
-            min_chunk,
-            avg_chunk,
-            max_chunk,
+            min_chunk as usize,
+            avg_chunk.map(|a| a as usize),
+            max_chunk as usize,
             parsed_mode,
             compute_hash,
-            snap_window,
+            snap_window.map(|w| w as usize),
             parsed_unit,
             parsed_norm,
-            context_before,
-            context_after,
+            context_before as usize,
+            context_after as usize,
         )
         .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
@@ -298,14 +344,14 @@ impl PyChunkerConfig {
             min_chunk: inner.min_chunk,
             avg_chunk: inner.avg_chunk,
             max_chunk: inner.max_chunk,
-            mode: inner.mode.as_str().to_string(),
+            mode: mode_str,
             compute_hash: inner.compute_hash,
             snap_window: inner.snap_window,
             size_unit: inner.size_unit.as_str().to_string(),
             normalize: inner.normalize.as_str().to_string(),
             context_before: inner.context_before,
             context_after: inner.context_after,
-            num_threads,
+            num_threads: num_threads.map(|n| n as usize),
             inner,
         })
     }
@@ -337,20 +383,61 @@ impl PyChunkerConfig {
 fn resolve_config(
     py: Python<'_>,
     config: Option<&PyChunkerConfig>,
-    min_chunk: usize,
-    avg_chunk: Option<usize>,
-    max_chunk: usize,
+    min_chunk: i64,
+    avg_chunk: Option<i64>,
+    max_chunk: i64,
     mut mode: &str,
     compute_hash: bool,
-    snap_window: Option<usize>,
+    snap_window: Option<i64>,
     size_unit: &str,
     normalize: &str,
-    context_before: usize,
-    context_after: usize,
+    context_before: i64,
+    context_after: i64,
     semantic_snap: Option<bool>,
 ) -> PyResult<ChunkerConfig> {
     if let Some(cfg) = config {
         return Ok(cfg.inner.clone());
+    }
+
+    if min_chunk <= 0 {
+        return Err(PyValueError::new_err(
+            "Minimum chunk size must be greater than 0",
+        ));
+    }
+    if max_chunk <= 0 {
+        return Err(PyValueError::new_err(
+            "Maximum chunk size must be greater than 0",
+        ));
+    }
+    if min_chunk > max_chunk {
+        return Err(PyValueError::new_err(format!(
+            "Minimum chunk size ({min_chunk}) cannot be greater than maximum chunk size ({max_chunk})"
+        )));
+    }
+    if let Some(avg) = avg_chunk {
+        if avg < min_chunk || avg > max_chunk {
+            return Err(PyValueError::new_err(format!(
+                "Average chunk size ({avg}) must be between minimum ({min_chunk}) and maximum ({max_chunk})"
+            )));
+        }
+    }
+    if max_chunk as usize > MAX_CHUNK_SIZE_LIMIT {
+        return Err(PyValueError::new_err(format!(
+            "Chunk size ({max_chunk}) exceeds maximum supported limit ({MAX_CHUNK_SIZE_LIMIT} bytes)"
+        )));
+    }
+    if let Some(w) = snap_window {
+        if w <= 0 {
+            return Err(PyValueError::new_err(
+                "Snap window must be greater than 0",
+            ));
+        }
+    }
+    if context_before < 0 {
+        return Err(PyValueError::new_err("context_before must be >= 0"));
+    }
+    if context_after < 0 {
+        return Err(PyValueError::new_err("context_after must be >= 0"));
     }
 
     if let Some(snap) = semantic_snap {
@@ -388,16 +475,16 @@ fn resolve_config(
         .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
     ChunkerConfig::new_full(
-        min_chunk,
-        avg_chunk,
-        max_chunk,
+        min_chunk as usize,
+        avg_chunk.map(|a| a as usize),
+        max_chunk as usize,
         parsed_mode,
         compute_hash,
-        snap_window,
+        snap_window.map(|w| w as usize),
         parsed_unit,
         parsed_norm,
-        context_before,
-        context_after,
+        context_before as usize,
+        context_after as usize,
     )
     .map_err(|err| PyValueError::new_err(err.to_string()))
 }
@@ -423,16 +510,16 @@ pub fn resolve_snap_window(
 pub fn chunker_fingerprint(
     py: Python<'_>,
     config: Option<&PyChunkerConfig>,
-    min_chunk: usize,
-    avg_chunk: Option<usize>,
-    max_chunk: usize,
+    min_chunk: i64,
+    avg_chunk: Option<i64>,
+    max_chunk: i64,
     mode: &str,
     compute_hash: bool,
-    snap_window: Option<usize>,
+    snap_window: Option<i64>,
     size_unit: &str,
     normalize: &str,
-    context_before: usize,
-    context_after: usize,
+    context_before: i64,
+    context_after: i64,
 ) -> PyResult<String> {
     let resolved = resolve_config(
         py,
@@ -462,17 +549,17 @@ pub fn cache_key(
     chunk: &PyChunkResult,
     model_id: &str,
     config: Option<&PyChunkerConfig>,
-    min_chunk: usize,
-    avg_chunk: Option<usize>,
-    max_chunk: usize,
+    min_chunk: i64,
+    avg_chunk: Option<i64>,
+    max_chunk: i64,
     mode: &str,
     compute_hash: bool,
     with_context: bool,
-    snap_window: Option<usize>,
+    snap_window: Option<i64>,
     size_unit: &str,
     normalize: &str,
-    context_before: usize,
-    context_after: usize,
+    context_before: i64,
+    context_after: i64,
 ) -> PyResult<String> {
     let resolved = resolve_config(
         py,
@@ -520,17 +607,17 @@ pub fn cache_key(
 pub fn chunk_documents_batch(
     py: Python<'_>,
     documents: Vec<Bound<'_, PyBytes>>,
-    min_chunk: usize,
-    max_chunk: usize,
-    avg_chunk: Option<usize>,
+    min_chunk: i64,
+    max_chunk: i64,
+    avg_chunk: Option<i64>,
     mode: &str,
     compute_hash: bool,
-    num_threads: Option<usize>,
-    snap_window: Option<usize>,
+    num_threads: Option<i64>,
+    snap_window: Option<i64>,
     size_unit: &str,
     normalize: &str,
-    context_before: usize,
-    context_after: usize,
+    context_before: i64,
+    context_after: i64,
     semantic_snap: Option<bool>,
     config: Option<&PyChunkerConfig>,
     kwargs: Option<&Bound<'_, PyDict>>,
@@ -551,10 +638,10 @@ pub fn chunk_documents_batch(
     }
 
     if let Some(n) = num_threads {
-        if n == 0 {
-            return Err(PyValueError::new_err(
-                "Invalid thread count (0): num_threads must be >= 1",
-            ));
+        if n <= 0 {
+            return Err(PyValueError::new_err(format!(
+                "Invalid thread count ({n}): num_threads must be >= 1"
+            )));
         }
     }
 
@@ -574,10 +661,18 @@ pub fn chunk_documents_batch(
         semantic_snap,
     )?;
 
+    let num_threads_resolved = if let Some(n) = num_threads {
+        Some(n as usize)
+    } else if let Some(cfg) = config {
+        cfg.num_threads
+    } else {
+        None
+    };
+
     let doc_slices: Vec<&[u8]> = documents.iter().map(|b| b.as_bytes()).collect();
 
     let batch_chunks = py
-        .allow_threads(|| chunk_batch_with_config(&doc_slices, &resolved, num_threads))
+        .allow_threads(|| chunk_batch_with_config(&doc_slices, &resolved, num_threads_resolved))
         .map_err(|err| PyValueError::new_err(err.to_string()))?;
 
     let results = batch_chunks

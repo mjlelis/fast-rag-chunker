@@ -562,8 +562,8 @@ pub fn is_sentence_abbreviation(data: &[u8], period_byte_idx: usize) -> bool {
     }
 }
 
-/// Searches `data[window_start..window_end]` for the highest-priority semantic boundary.
-pub fn find_priority_boundary(
+/// Finds the first Markdown heading (Priority 1) in `data` within `[window_start, window_end]`.
+pub fn find_markdown_heading(
     data: &[u8],
     window_start: usize,
     window_end: usize,
@@ -574,7 +574,6 @@ pub fn find_priority_boundary(
     let actual_end = window_end.min(data.len());
     let span = &data[window_start..actual_end];
 
-    // Priority 1: Markdown Heading (?:^|\n)(#{1,6}[ \t]+[^\n]+)
     let mut i = 0;
     while i < span.len() {
         let is_line_start = (i == 0 && (window_start == 0 || data[window_start - 1] == b'\n'))
@@ -597,6 +596,26 @@ pub fn find_priority_boundary(
         }
         i += 1;
     }
+    None
+}
+
+/// Searches `data[window_start..window_end]` for the highest-priority semantic boundary.
+pub fn find_priority_boundary(
+    data: &[u8],
+    window_start: usize,
+    window_end: usize,
+) -> Option<usize> {
+    if window_start >= window_end || window_start >= data.len() {
+        return None;
+    }
+
+    // Priority 1: Markdown Heading (?:^|\n)(#{1,6}[ \t]+[^\n]+)
+    if let Some(h) = find_markdown_heading(data, window_start, window_end) {
+        return Some(h);
+    }
+
+    let actual_end = window_end.min(data.len());
+    let span = &data[window_start..actual_end];
 
     // Priority 2: Blank line / Paragraph (\n[ \t]*\r?\n)
     let mut j = 0;
@@ -1024,6 +1043,11 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
     let mut offset = 0;
     let mut ordinal = 0;
 
+    let is_boundary_mode = matches!(
+        validated.mode,
+        ChunkingMode::Boundary | ChunkingMode::Semantic
+    );
+
     while offset < doc_len {
         let remaining = doc_len - offset;
 
@@ -1065,7 +1089,7 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
                 let midpoint = prev_offset + combined_len / 2;
                 let split_start = (prev_offset + min_limit).max(midpoint.saturating_sub(snap_win));
                 let split_end = (prev_offset + combined_len - min_limit).min(midpoint + snap_win);
-                let bound = if validated.mode == ChunkingMode::Boundary {
+                let bound = if is_boundary_mode {
                     find_priority_boundary(data, split_start, split_end).unwrap_or(midpoint)
                 } else {
                     midpoint
@@ -1101,27 +1125,48 @@ pub fn chunk_with_config(data: &[u8], config: &ChunkerConfig) -> Result<Vec<Chun
             }
         }
 
-        // FastCDC rolling Gear hash determines base cut point C_raw
-        let raw_len = cut_fastcdc(&data[offset..], min_limit, max_limit, ns, mask_s, mask_l);
-        let c_raw = offset + raw_len;
+        // Priority 1: Markdown Heading in [offset + min_limit, (offset + max_limit).min(doc_len)]
+        let heading_cut = if is_boundary_mode {
+            find_markdown_heading(data, offset + min_limit, (offset + max_limit).min(doc_len))
+        } else {
+            None
+        };
 
-        // Localized boundary snapping window around C_raw:
-        // [C_raw - snap_window, C_raw + snap_window] clamped to [min_limit, max_limit]
-        let w_start = (offset + min_limit).max(c_raw.saturating_sub(snap_win));
-        let w_end = ((offset + max_limit).min(doc_len)).min(c_raw + snap_win);
+        let mut cut_point = if remaining <= max_limit {
+            if let Some(h) = heading_cut {
+                if doc_len - h >= min_limit {
+                    h
+                } else {
+                    doc_len
+                }
+            } else {
+                doc_len
+            }
+        } else if let Some(h) = heading_cut {
+            h
+        } else {
+            // FastCDC rolling Gear hash determines base cut point C_raw
+            let raw_len = cut_fastcdc(&data[offset..], min_limit, max_limit, ns, mask_s, mask_l);
+            let c_raw = offset + raw_len;
 
-        let mut cut_point = if validated.mode == ChunkingMode::Boundary {
-            if let Some(chosen) = find_priority_boundary(data, w_start, w_end) {
-                if chosen > offset {
-                    chosen
+            // Localized boundary snapping window around C_raw:
+            // [C_raw - snap_window, C_raw + snap_window] clamped to [min_limit, max_limit]
+            let w_start = (offset + min_limit).max(c_raw.saturating_sub(snap_win));
+            let w_end = ((offset + max_limit).min(doc_len)).min(c_raw + snap_win);
+
+            if is_boundary_mode {
+                if let Some(chosen) = find_priority_boundary(data, w_start, w_end) {
+                    if chosen > offset {
+                        chosen
+                    } else {
+                        c_raw
+                    }
                 } else {
                     c_raw
                 }
             } else {
                 c_raw
             }
-        } else {
-            c_raw
         };
 
         // UTF-8 codepoint boundary fallback
@@ -1346,6 +1391,37 @@ mod tests {
             assert!(c.length >= 10);
             assert!(c.length <= 40);
         }
+    }
+
+    #[test]
+    fn test_markdown_heading_priority_small_doc() {
+        let doc = b"Paragraph body content before the section title. This is descriptive text.\n# New Major Heading\nThis is the start of the next section.";
+        let config =
+            ChunkerConfig::new(32, Some(70), 150, ChunkingMode::Boundary, true).unwrap();
+        let chunks = chunk_with_config(doc, &config).unwrap();
+        assert!(chunks.len() >= 2);
+        let sec2 = &doc[chunks[1].offset..chunks[1].offset + chunks[1].length];
+        assert!(sec2.starts_with(b"# New Major Heading"));
+    }
+
+    #[test]
+    fn test_small_doc_no_heading_single_chunk() {
+        let doc = b"# Header\n\nContent without any heading beyond min_chunk.";
+        let config =
+            ChunkerConfig::new(15, Some(67), 120, ChunkingMode::Boundary, true).unwrap();
+        let chunks = chunk_with_config(doc, &config).unwrap();
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(chunks[0].length, doc.len());
+    }
+
+    #[test]
+    fn test_tail_remainder_min_minus_one_raw_mode() {
+        let doc = [b"A".repeat(80), b"B".repeat(63)].concat();
+        let config =
+            ChunkerConfig::new(64, Some(80), 200, ChunkingMode::Raw, true).unwrap();
+        let chunks = chunk_with_config(&doc, &config).unwrap();
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(chunks[0].length, 143);
     }
 
     #[test]
